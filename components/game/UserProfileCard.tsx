@@ -14,7 +14,7 @@ export function UserProfileCard() {
 
             life: 100,
             stamina: 100,
-            addiction: 0,
+            addiction: 12,
             karma: 50,
 
             strength: 10,
@@ -46,68 +46,64 @@ export function UserProfileCard() {
                 </div>
 
                 {/* Main Stats Bars */}
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 w-full">
+                <div className="flex-1 flex flex-col gap-4 w-full">
 
-                    {/* Life */}
-                    <div className="space-y-1">
-                        <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400">
-                            <span>Vida</span>
-                            <span>{user.life}%</span>
-                        </div>
-                        <Progress
-                            aria-label="Vida"
-                            value={user.life}
-                            color="danger"
-                            classNames={{ indicator: "bg-red-500" }}
-                            size="sm"
-                        />
-                    </div>
+                    {/* Life - Red */}
+                    <Progress
+                        label="Vida"
+                        value={user.life || 0}
+                        color="danger"
+                        size="md"
+                        showValueLabel={true}
+                        classNames={{
+                            track: "bg-white/10",
+                            label: "text-xs uppercase font-bold tracking-wider text-gray-400",
+                            value: "text-xs uppercase font-bold tracking-wider text-gray-400"
+                        }}
+                    />
 
-                    {/* Stamina */}
-                    <div className="space-y-1">
-                        <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400">
-                            <span>Stamina</span>
-                            <span>{user.stamina}%</span>
-                        </div>
-                        <Progress
-                            aria-label="Stamina"
-                            value={user.stamina}
-                            color="warning"
-                            classNames={{ indicator: "bg-amber-500" }}
-                            size="sm"
-                        />
-                    </div>
+                    {/* Stamina - Blue */}
+                    <Progress
+                        label="Stamina"
+                        value={user.stamina || 0}
+                        size="md"
+                        showValueLabel={true}
+                        classNames={{
+                            track: "bg-white/10",
+                            indicator: "!bg-blue-500",
+                            label: "text-xs uppercase font-bold tracking-wider text-gray-400",
+                            value: "text-xs uppercase font-bold tracking-wider text-gray-400"
+                        }}
+                    />
 
-                    {/* Addiction */}
-                    <div className="space-y-1">
-                        <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400">
-                            <span>Vício</span>
-                            <span>{user.addiction}%</span>
-                        </div>
-                        <Progress
-                            aria-label="Vício"
-                            value={user.addiction}
-                            color="secondary"
-                            classNames={{ indicator: "bg-purple-500" }}
-                            size="sm"
-                        />
-                    </div>
+                    {/* Addiction - Green */}
+                    <Progress
+                        label="Vício"
+                        value={user.addiction || 0}
+                        color="success"
+                        size="md"
+                        showValueLabel={true}
+                        classNames={{
+                            track: "bg-white/10",
+                            label: "text-xs uppercase font-bold tracking-wider text-gray-400",
+                            value: "text-xs uppercase font-bold tracking-wider text-gray-400"
+                        }}
+                    />
 
-                    {/* Karma */}
-                    <div className="space-y-1">
-                        <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400">
-                            <span>Karma</span>
-                            <span>{user.karma}</span>
-                        </div>
-                        <Progress
-                            aria-label="Karma"
-                            value={user.karma}
-                            maxValue={100} // Assuming 100 for visual
-                            color="success"
-                            classNames={{ indicator: "bg-emerald-500" }}
-                            size="sm"
-                        />
-                    </div>
+                    {/* Karma - Yellow */}
+                    <Progress
+                        label="Karma"
+                        value={user.karma || 0}
+                        maxValue={100}
+                        color="warning"
+                        size="md"
+                        showValueLabel={true}
+                        classNames={{
+                            track: "bg-white/10",
+                            label: "text-xs uppercase font-bold tracking-wider text-gray-400",
+                            value: "text-xs uppercase font-bold tracking-wider text-gray-400"
+                        }}
+                    />
 
                 </div>
 
