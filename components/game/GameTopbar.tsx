@@ -8,7 +8,7 @@ export function GameTopbar() {
     const { logout } = useGame();
 
     return (
-        <nav className="fixed top-0 left-0 right-0 w-full h-16 bg-black/50 backdrop-blur-md border-b border-white/10 z-50">
+        <nav className="h-16 bg-black/50 backdrop-blur-md border-b border-white/10 z-50">
             <div className="container mx-auto px-4 lg:px-8 h-full flex items-center justify-between">
                 <div className="flex items-center gap-8">
                     <Link href="/game" className="flex items-center gap-2">

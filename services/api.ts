@@ -48,7 +48,13 @@ export const api = {
     performAction: async (actionId: string): Promise<{ success: boolean; message: string; rewards?: Partial<User> }> => {
         await new Promise((resolve) => setTimeout(resolve, 600));
 
-        const action = GAME_ACTIONS[actionId];
+        const action = {
+            title: "Ação 1",
+            risk: 50,
+            moneyReward: 100,
+            energyCost: 10,
+            reputationReward: 5,
+        };
         if (!action) return { success: false, message: "Ação desconhecida." };
 
         // Lógica de Risco
