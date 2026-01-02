@@ -11,10 +11,10 @@ const WORK_ACTIONS: ActionItem[] = [
 
 export function WorkPage() {
     return (
-        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div>
             <div>
-                <h1 className="text-4xl md:text-5xl font-black uppercase text-white mb-2 tracking-tighter shadow-glow">Trabalho</h1>
-                <p className="text-gray-400 font-mono text-lg border-l-2 border-primary pl-4">
+                <h1 className="text-4xl font-bold uppercase text-white mb-2">Trabalho</h1>
+                <p className="text-gray-400 text-lg border-l-2 border-primary pl-4">
                     Onde o filho chora e a mãe não vê. Escolha seu veneno.
                 </p>
             </div>

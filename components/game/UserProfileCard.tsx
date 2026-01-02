@@ -27,7 +27,7 @@ export function UserProfileCard() {
     };
 
     return (
-        <Card className="w-full bg-[#0a0a0a] border border-white/10 p-0 overflow-hidden">
+        <Card className="w-full bg-black border border-white/10 p-0 overflow-hidden">
             <CardBody className="p-4 flex flex-col md:flex-row gap-6 items-center">
 
                 {/* Profile Section */}

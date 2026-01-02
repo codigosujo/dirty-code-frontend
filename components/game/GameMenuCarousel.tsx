@@ -37,9 +37,9 @@ export function GameMenuCarousel({ items, activeId, onSelect }: GameMenuCarousel
                         isPressable
                         onPress={() => onSelect(item.id)}
                         className={`
-                                flex-shrink-0 w-64 border bg-[#0a0a0a] transition-all duration-300 snap-center
+                                flex-shrink-0 w-64 border bg-black transition-all duration-300 snap-center
                                 ${isActive
-                                ? `bg-white/10 border-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] ring-1 ring-primary`
+                                ? `bg-white/10 border-primary ring-1 ring-primary`
                                 : 'border-white/10 hover:border-white/30 hover:bg-white/5'
                             }
                             `}

@@ -21,7 +21,7 @@ export function ActionCard({ action, color = "primary" }: ActionCardProps) {
     }
 
     return (
-        <Card className="bg-[#0f0f0f] border border-white/5 hover:border-white/20 transition-all group w-full">
+        <Card className="bg-black border border-white/10 hover:border-white/20 transition-all group w-full">
             <CardBody className="flex flex-col md:flex-row items-center justify-between p-6 gap-6">
                 <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3">

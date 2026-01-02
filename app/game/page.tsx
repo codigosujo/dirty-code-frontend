@@ -77,10 +77,7 @@ export default function GameDashboard() {
                 />
 
                 {/* 3. Dynamic Content Area */}
-                <div className="min-h-[400px] bg-[#0a0a0a]/50 border border-white/5 rounded-2xl p-6 md:p-8 relative overflow-hidden">
-                    {/* Background decorations */}
-                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
+                <div className="min-h-96 bg-black/50 border border-white/10 rounded-2xl p-6 md:p-8 relative overflow-hidden">
                     {content ? (
                         content.component
                     ) : (

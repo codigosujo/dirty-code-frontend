@@ -21,7 +21,7 @@ export function GameShell({ children, user: serverUser }: GameShellProps) {
     }, [serverUser, contextUser, refreshUser]);
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#050505] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-[#050505] to-black">
+        <div className="flex flex-col min-h-screen bg-black">
             <GameTopbar />
             <main className="flex-1 container mx-auto p-2 fade-in">
                 {children}
