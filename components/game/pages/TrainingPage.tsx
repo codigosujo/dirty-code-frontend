@@ -5,6 +5,7 @@ import { ActionItem } from "@/components/ActionPage";
 
 const TRAINING_ACTIONS: ActionItem[] = [
     { id: "read_docs", title: "Ler Documentação", description: "Aumente sua inteligência lendo manuais chatos.", energyCost: 10, moneyReward: 0, risk: 0 },
+    { id: "dechampo_youtube", title: "Assistir video do Dechampo", description: "Veja videos no Youtube para aprender coisas.", energyCost: 25, moneyReward: 0, risk: 10 },
     { id: "leetcode_grind", title: "Grind no LeetCode", description: "Resolva algoritmos inúteis para entrevistas.", energyCost: 25, moneyReward: 0, risk: 10 },
 ];
 
