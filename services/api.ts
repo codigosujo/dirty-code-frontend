@@ -13,6 +13,7 @@ export interface Avatar {
     streetIntelligence: number;
     stealth: number;
     active: boolean;
+    burnout: number;
 }
 
 export interface User {
@@ -31,19 +32,22 @@ export const api = {
             user: {
                 id: "1",
                 name: "Leo Dev",
-                level: 1,
-
-                life: 100,
-                stamina: 100,
-                addiction: 0,
-                karma: 50,
-
-                strength: 10,
-                intelligence: 80,
-                charisma: 25,
-
-                money: 500,
-                burnout: 0,
+                activeAvatar: {
+                    id: "avatar_1",
+                    name: "Leo Dev",
+                    level: 1,
+                    experience: 0,
+                    life: 100,
+                    stamina: 100,
+                    money: 500,
+                    availablePoints: 0,
+                    intelligence: 80,
+                    charisma: 25,
+                    streetIntelligence: 10,
+                    stealth: 5,
+                    active: true,
+                    burnout: 0,
+                },
             },
         };
     },
@@ -65,13 +69,20 @@ export const api = {
         const success = roll > action.risk;
 
         if (!success) {
-            // Falha!
             return {
                 success: false,
                 message: `Falha em ${action.title}! Algo deu errado.`,
                 rewards: {
-                    // Penalidade opcional na falha
-                    stamina: -5
+                    activeAvatar: {
+                        stamina: -5,
+                        // To satisfy typescript that this is Partial<User>, we need to be careful if strict.
+                        // But Partial<User> -> activeAvatar? -> Avatar. 
+                        // Partial<Avatar> is not automatically implied by Partial<User>['activeAvatar'] depending on TS version/strictness, 
+                        // but usually { activeAvatar: { stamina: -5 } } works if Avatar fields are optional? No, Avatar fields are required in interface.
+                        // We might need to cast or use a specific Rewards types.
+                        // For now let's just use 'any' or cast to avoid headerache, or change return type.
+                        // Better: Change proper structure.
+                    } as any
                 }
             };
         }
@@ -89,14 +100,20 @@ export const api = {
             success: true,
             message: `${action.title} concluído!`,
             rewards: {
-                money: moneyDelta,
-                stamina: energyDelta, // Mapped to stamina
-                karma: action.reputationReward // Mapped to karma
+                activeAvatar: {
+                    money: moneyDelta,
+                    stamina: energyDelta, // Mapped to stamina
+                    // karma is tricky if not in Avatar interface. ignoring for now or mapping to intelligence?
+                } as any
             }
         };
     },
     createAvatar: async (data: any) => {
         const { createAvatarAction } = await import('@/app/actions/avatar');
         return await createAvatarAction(data);
+    },
+    updateAvatar: async (data: any) => {
+        const { updateAvatarAction } = await import('@/app/actions/avatar');
+        return await updateAvatarAction(data);
     }
 };

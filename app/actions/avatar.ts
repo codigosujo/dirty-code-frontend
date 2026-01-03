@@ -47,3 +47,34 @@ export async function createAvatarAction(data: any) {
 
     return avatarData;
 }
+
+export async function updateAvatarAction(data: any) {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('dirty_token')?.value;
+
+    if (!token) {
+        throw new Error("Unauthorized");
+    }
+
+    const backendUrl = getBackendUrl();
+
+    // Assuming PUT /v1/avatars updates the current user's active avatar or generic avatar update
+    // If the backend requires an ID, we might need to change this URL. 
+    // Usually PUT /v1/avatars implies updating the current one or we pass the whole object.
+    const res = await fetch(`${backendUrl}/v1/avatars`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Failed to update avatar");
+    }
+
+    const avatarData = await res.json();
+    return avatarData;
+}

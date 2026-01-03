@@ -105,11 +105,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
         try {
             const result = await api.performAction(actionId);
-            if (result.success && result.rewards) {
+            if (result.success && result.rewards && result.rewards.activeAvatar) {
                 // Calculate new values
-                const newStamina = Math.min(100, Math.max(0, currentStamina + (result.rewards.stamina || 0)));
-                const newMoney = currentMoney + (result.rewards.money || 0);
-                const newKarma = (user.activeAvatar?.intelligence ?? 0) + 0;
+                const rewardAvatar = result.rewards.activeAvatar as any; // Cast for ease since we returned any in API
+
+                const newStamina = Math.min(100, Math.max(0, currentStamina + (rewardAvatar.stamina || 0)));
+                const newMoney = currentMoney + (rewardAvatar.money || 0);
+
                 // Note: api.performAction returns generic rewards. We need to map them. 
                 // Currently mock api returns { stamina, money, karma }.
 
@@ -128,7 +130,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 localStorage.setItem('dirty_user', JSON.stringify(newUser));
             } else {
                 // Handle failure (e.g. only energy cost)
-                const newStamina = Math.min(100, Math.max(0, currentStamina + (result.rewards?.stamina || 0)));
+                const rewardAvatar = result.rewards?.activeAvatar as any || {};
+                const newStamina = Math.min(100, Math.max(0, currentStamina + (rewardAvatar.stamina || 0)));
 
                 let newUser = { ...user };
                 if (newUser.activeAvatar) {

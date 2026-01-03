@@ -59,7 +59,7 @@ export function ActionCard({ action, color = "primary" }: ActionCardProps) {
                     isLoading={isLoading}
                     onPress={handleAction}
                     className="w-full md:w-auto font-bold tracking-wider px-8"
-                    isDisabled={action.energyCost > 0 ? (!!user && user.stamina < action.energyCost) : false}
+                    isDisabled={action.energyCost > 0 ? (!!user && (user.activeAvatar?.stamina ?? 0) < action.energyCost) : false}
                 >
                     {isLoading ? '...' : (action.energyCost < 0 ? 'RECUPERAR' : 'EXECUTAR')}
                 </Button>
