@@ -1,23 +1,26 @@
-export type User = {
+export interface Avatar {
     id: string;
     name: string;
+    picture?: string;
     level: number;
-
-    // Bars
+    experience: number;
+    stamina: number;
     life: number;
-    stamina: number; // energy
-    addiction: number;
-    karma: number; // reputation
-
-    // Stats
-    strength: number;
+    money: number; // BigDecimal in backend, number in JS
+    availablePoints: number;
     intelligence: number;
     charisma: number;
+    streetIntelligence: number;
+    stealth: number;
+    active: boolean;
+}
 
-    // Resources
-    money: number;
-    burnout: number;
-};
+export interface User {
+    id: string;
+    email?: string;
+    name?: string;
+    activeAvatar?: Avatar;
+}
 
 export const api = {
     loginWithGoogle: async (): Promise<{ token: string; user: User }> => {
@@ -91,5 +94,9 @@ export const api = {
                 karma: action.reputationReward // Mapped to karma
             }
         };
+    },
+    createAvatar: async (data: any) => {
+        const { createAvatarAction } = await import('@/app/actions/avatar');
+        return await createAvatarAction(data);
     }
 };

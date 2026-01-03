@@ -28,5 +28,29 @@ export async function GET(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
     });
 
-    return NextResponse.redirect(new URL('/game', request.url));
+    try {
+        const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080/dirty-code';
+
+        const userRes = await fetch(`${backendUrl}/v1/users`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (userRes.ok) {
+            const userData = await userRes.json();
+
+            if (userData.activeAvatar) {
+                return NextResponse.redirect(new URL('/game', request.url));
+            } else {
+                return NextResponse.redirect(new URL('/game/user', request.url));
+            }
+        } else {
+            console.error('Failed to fetch user in login callback', await userRes.text());
+            return NextResponse.redirect(new URL('/game', request.url));
+        }
+    } catch (error) {
+        console.error('Error in login callback', error);
+        return NextResponse.redirect(new URL('/game', request.url));
+    }
 }

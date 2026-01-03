@@ -16,24 +16,29 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-
-
 export function GameProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
+    // Self-healing: Fetch user from BFF if not present
     useEffect(() => {
-        // Load user from local storage for optimistic UI, but trust Server sync for auth
-        const storedUser = localStorage.getItem('dirty_user');
-        if (storedUser) {
+        const fetchUser = async () => {
             try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse stored user", e);
+                const res = await fetch('/api/user/me');
+                if (res.ok) {
+                    const userData = await res.json();
+                    setUser(userData);
+                }
+            } catch (error) {
+                console.error("Failed to fetch user context", error);
             }
+        };
+
+        if (!user) {
+            fetchUser();
         }
-    }, []);
+    }, [user]);
 
     const logout = async () => {
         setIsLoading(true);
@@ -46,7 +51,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
         // Clear client state
         setUser(null);
-        localStorage.removeItem('dirty_user'); // Token is httpOnly now, no need to remove from js-cookie
+        localStorage.removeItem('dirty_user_info');
         router.push('/');
         setIsLoading(false);
     };
@@ -66,6 +71,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
 
     const performAction = async (actionId: string) => {
+        // ... (Action definition omitted for brevity, keeping existing hardcoded action for now as it wasn't requested to change)
         const action = {
             id: actionId,
             title: "Ação",
@@ -74,17 +80,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
             energyCost: 10,
             reputationReward: 5,
         }
+
         if (!user || !action) {
             console.error("Action not found or user not logged in.");
             return;
         }
 
-        if (action.energyCost > 0 && user.stamina < action.energyCost) {
+        // Helper to get current stats
+        const currentStamina = user.activeAvatar?.stamina ?? 0;
+        const currentMoney = user.activeAvatar?.money ?? 0;
+        // Karma/Reputation logic needs review, assuming it might be 'karma' or 'streetIntelligence' on avatar. 
+        // For now, defaulting to 0 as 'karma' is removed from basic User interface.
+        const currentKarma = 0;
+
+        if (action.energyCost > 0 && currentStamina < action.energyCost) {
             alert("Você está exausto! Recupere energias na Vida Noturna.");
             return;
         }
 
-        if (action.moneyReward < 0 && user.money < Math.abs(action.moneyReward)) {
+        if (action.moneyReward < 0 && currentMoney < Math.abs(action.moneyReward)) {
             alert("Fundos insuficientes.");
             return;
         }
@@ -92,23 +106,40 @@ export function GameProvider({ children }: { children: ReactNode }) {
         try {
             const result = await api.performAction(actionId);
             if (result.success && result.rewards) {
-                const newStats = {
-                    ...user,
-                    stamina: Math.min(100, Math.max(0, user.stamina + (result.rewards.stamina || 0))),
-                    money: user.money + (result.rewards.money || 0),
-                    karma: user.karma + (result.rewards.karma || 0),
-                };
-                setUser(newStats);
-                localStorage.setItem('dirty_user', JSON.stringify(newStats));
-            } else {
-                if (result.rewards) {
-                    const newStats = {
-                        ...user,
-                        stamina: Math.min(100, Math.max(0, user.stamina + (result.rewards.stamina || 0))),
+                // Calculate new values
+                const newStamina = Math.min(100, Math.max(0, currentStamina + (result.rewards.stamina || 0)));
+                const newMoney = currentMoney + (result.rewards.money || 0);
+                const newKarma = (user.activeAvatar?.intelligence ?? 0) + 0;
+                // Note: api.performAction returns generic rewards. We need to map them. 
+                // Currently mock api returns { stamina, money, karma }.
+
+                let newUser = { ...user };
+
+                if (newUser.activeAvatar) {
+                    newUser.activeAvatar = {
+                        ...newUser.activeAvatar,
+                        stamina: newStamina,
+                        money: newMoney,
+                        // Update other stats if rewards exist
                     };
-                    setUser(newStats);
-                    localStorage.setItem('dirty_user', JSON.stringify(newStats));
                 }
+
+                setUser(newUser);
+                localStorage.setItem('dirty_user', JSON.stringify(newUser));
+            } else {
+                // Handle failure (e.g. only energy cost)
+                const newStamina = Math.min(100, Math.max(0, currentStamina + (result.rewards?.stamina || 0)));
+
+                let newUser = { ...user };
+                if (newUser.activeAvatar) {
+                    newUser.activeAvatar = {
+                        ...newUser.activeAvatar,
+                        stamina: newStamina
+                    };
+                }
+
+                setUser(newUser);
+                localStorage.setItem('dirty_user', JSON.stringify(newUser));
                 alert(result.message);
             }
         } catch (e) {
@@ -117,10 +148,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     };
 
     const refreshUser = (updates: Partial<User>) => {
-        if (!user) return;
-        const updated = { ...user, ...updates };
+        const base = user || {} as User;
+        const updated = { ...base, ...updates };
         setUser(updated);
-        localStorage.setItem('dirty_user', JSON.stringify(updated));
+        localStorage.setItem('dirty_user_info', JSON.stringify(updated));
     }
 
     return (
