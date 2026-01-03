@@ -53,15 +53,15 @@ export default function AvatarEdit() {
 
         setIsLoading(true);
         try {
-            // Using the service as requested
-            const newAvatar = await api.createAvatar({
+            const data = {
                 name,
-                stamina: stats.stamina,
-                str: stats.str,
-                karma: stats.karma,
-                intelligence: stats.intelligence,
-                photoUrl: selectedAvatar
-            });
+                picture: selectedAvatar
+            }
+
+            console.log(data)
+            alert("saved!")
+            // Using the service as requested
+            const newAvatar = await api.createAvatar(data);
 
             // Update GameProvider state immediately
             refreshUser({ activeAvatar: newAvatar });
