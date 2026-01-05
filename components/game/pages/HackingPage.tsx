@@ -15,11 +15,31 @@ interface HackingAction extends ActionItem {
 
 const HACKING_ACTIONS: HackingAction[] = [
     {
+        id: "urubu_pix",
+        title: "Golpe do PIX em Idosos",
+        description: "Dê golpes do PIX em idosos vulneráveis pelo WhatsApp.",
+        energyCost: 10,
+        moneyReward: 50,
+        experienceReward: 20,
+        risk: 5,
+        requirements: { intelligence: 1, stealth: 0 }
+    },
+    {
+        id: "whatsapp_clone",
+        title: "Clone WhatsApp",
+        description: "Se passe por outras pessoas para conseguir dinheiro.",
+        energyCost: 15,
+        moneyReward: 100,
+        experienceReward: 30,
+        risk: 5,
+        requirements: { intelligence: 2, stealth: 1 }
+    },
+    {
         id: "sql_injection",
         title: "SQL Injection Simples",
         description: "Invadir site de padaria vulnerável.",
         energyCost: 15,
-        moneyReward: 100,
+        moneyReward: 300,
         experienceReward: 20,
         risk: 20,
         requirements: { intelligence: 10, stealth: 5 }

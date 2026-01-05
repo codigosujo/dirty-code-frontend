@@ -9,39 +9,50 @@ interface TrainingAction extends ActionItem {
     experienceReward: number;
     requirements: {
         intelligence: number;
+        money: number;
     };
 }
 
 const TRAINING_ACTIONS: TrainingAction[] = [
     {
-        id: "read_docs",
-        title: "Ler Documentação do PHP",
-        description: "Aumente sua inteligência lendo manuais chatos.",
-        energyCost: 10,
-        moneyReward: 0,
-        experienceReward: 15,
-        risk: 0,
-        requirements: { intelligence: 0 },
-    },
-    {
         id: "dechampo_youtube",
         title: "Assistir Vídeo do Dechampo",
-        description: "Aprenda arquitetura de software e clean code.",
+        description: "Aprenda sobre tecnologia com quem sabe falar bonito.",
         energyCost: 20,
         moneyReward: 0,
-        experienceReward: 35,
+        experienceReward: 5,
         risk: 5,
-        requirements: { intelligence: 10 },
+        requirements: { intelligence: 0, money: 0 },
+    },
+    {
+        id: "course_youtube",
+        title: "Copie projetos grátis do Foguete",
+        description: "Finja que está aprendendo a programar copiando projetos do time do Foguete.",
+        energyCost: 30,
+        moneyReward: 0,
+        experienceReward: 25,
+        risk: 10,
+        requirements: { intelligence: 1, money: 0 },
     },
     {
         id: "leetcode_grind",
-        title: "Grind no LeetCode",
-        description: "Resolva algoritmos complexos de grafos.",
-        energyCost: 35,
+        title: "Resolva com LeetCode fáceis",
+        description: "Brigue com algoritmos fáceis de LeetCode. ",
+        energyCost: 20,
         moneyReward: 0,
-        experienceReward: 60,
-        risk: 15,
-        requirements: { intelligence: 20 },
+        experienceReward: 50,
+        risk: 20,
+        requirements: { intelligence: 5, money: 0 },
+    },
+    {
+        id: "rocket_course",
+        title: "Se inscreva no curso do Foguete",
+        description: "Aprenda a programar as tecnologias mais avançadas do mercado no time do foguete",
+        energyCost: 20,
+        moneyReward: 0,
+        experienceReward: 50,
+        risk: 20,
+        requirements: { intelligence: 5, money: 500 },
     },
 ];
 

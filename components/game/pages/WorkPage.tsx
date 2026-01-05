@@ -15,6 +15,36 @@ interface WorkAction extends ActionItem {
 
 const WORK_ACTIONS: WorkAction[] = [
     {
+        id: "tv_channel_father",
+        title: "Ajustar canais de TV do pai",
+        description: "O pai está desesperado, a TV não está funcionando.",
+        energyCost: 10,
+        moneyReward: 30,
+        experienceReward: 10,
+        risk: 2,
+        requirements: { intelligence: 1, charisma: 0 }
+    },
+    {
+        id: "pc_format",
+        title: "Formatar PC da mãe",
+        description: "O notebook está demorando 2 horas para ligar.",
+        energyCost: 10,
+        moneyReward: 50,
+        experienceReward: 10,
+        risk: 10,
+        requirements: { intelligence: 2, charisma: 1 }
+    },
+    {
+        id: "coffee",
+        title: "Fazer café no estágio",
+        description: "Passar café para os colegas no estágio.",
+        energyCost: 10,
+        moneyReward: 100,
+        experienceReward: 20,
+        risk: 10,
+        requirements: { intelligence: 2, charisma: 2 }
+    },
+    {
         id: "freelance_bug",
         title: "Corrigir Bug Crítico",
         description: "Cliente está desesperado. O sistema caiu.",
