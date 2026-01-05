@@ -136,63 +136,52 @@ export function WorkPage() {
                     }}
                     onSelectionChange={(keys) => setSelectedActionId(Array.from(keys)[0] as string)}
                 >
-                </Select>
-
-                {selectedAction && (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                        <div className={`
-                            border rounded-xl p-6 relative overflow-hidden group transition-all
-                            ${meetsRequirements(selectedAction) ? 'bg-zinc-900/40 border-primary/50' : 'bg-red-950/10 border-red-500/30'}
-                            shadow-[0_0_30px_rgba(0,0,0,0.3)]
-                        `}>
-                            <div className="flex flex-col gap-6">
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className={`text-2xl font-bold ${meetsRequirements(selectedAction) ? 'text-primary' : 'text-red-400'}`}>
-                                            {selectedAction.title}
-                                        </h3>
-                                        {!meetsRequirements(selectedAction) && (
-                                            <span className="text-xs px-2 py-1 rounded bg-red-500/10 text-red-500 font-bold uppercase tracking-wider">
-                                                Requisitos não atendidos
-                                            </span>
-                                        )}
+                    {WORK_ACTIONS.map((action) => (
+                        <SelectItem
+                            key={action.id}
+                            textValue={action.title}
+                            className="h-auto py-3 data-[hover=true]:bg-white/5"
+                        >
+                            <div className="flex flex-col gap-2 w-full">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col">
+                                        <span className="text-base font-bold text-white">{action.title}</span>
+                                        <span className="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-md">{action.description}</span>
                                     </div>
-                                    <p className="text-gray-300 text-lg">{selectedAction.description}</p>
+                                    {(action.risk ?? 0) > 0 && (
+                                        <Chip size="sm" variant="flat" color="danger" className="border border-danger/20 text-[10px] h-5 min-h-0">
+                                            {action.risk}% RISK
+                                        </Chip>
+                                    )}
                                 </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm font-mono bg-black/40 p-4 rounded-xl border border-white/5">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-gray-500 uppercase tracking-wider text-[10px]">INT Necessária</span>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className={`text-xl font-bold ${(user?.activeAvatar?.intelligence || 0) >= selectedAction.requirements.intelligence ? 'text-white' : 'text-red-500'}`}>
-                                                {selectedAction.requirements.intelligence}
-                                            </span>
-                                        </div>
+                                <div className="flex items-center gap-4 text-xs font-mono border-t border-white/5 pt-2 mt-1">
+                                    <div className="flex items-center gap-1.5 text-blue-400">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                        -{action.energyCost} STM
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-gray-500 uppercase tracking-wider text-[10px]">CHA Necessário</span>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className={`text-xl font-bold ${(user?.activeAvatar?.charisma || 0) >= selectedAction.requirements.charisma ? 'text-white' : 'text-red-500'}`}>
-                                                {selectedAction.requirements.charisma}
-                                            </span>
-                                        </div>
+                                    <div className="flex items-center gap-1.5 text-green-400">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                        +${action.moneyReward}
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-gray-500 uppercase tracking-wider text-[10px]">Custo Stamina</span>
-                                        <span className="text-xl font-bold text-blue-400">-{selectedAction.energyCost}</span>
+                                    <div className="flex items-center gap-1.5 text-purple-400">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                                        +{action.experienceReward} XP
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-gray-500 uppercase tracking-wider text-[10px]">Recompensas</span>
-                                        <div className="flex flex-col">
-                                            <span className="text-xl font-bold text-green-400">+${selectedAction.moneyReward}</span>
-                                            <span className="text-xs font-bold text-purple-400">+{selectedAction.experienceReward} XP</span>
-                                        </div>
+                                    <div className="w-px h-3 bg-white/20 mx-1"></div>
+                                    <div className="flex gap-3 text-gray-400">
+                                        <span className={(user?.activeAvatar?.intelligence || 0) >= action.requirements.intelligence ? "text-gray-300" : "text-red-400"}>
+                                            INT {action.requirements.intelligence}
+                                        </span>
+                                        <span className={(user?.activeAvatar?.charisma || 0) >= action.requirements.charisma ? "text-gray-300" : "text-red-400"}>
+                                            CHA {action.requirements.charisma}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        </SelectItem>
+                    ))}
+                </Select>
             </div>
 
             <div className="flex justify-end pt-4 border-t border-white/5">
