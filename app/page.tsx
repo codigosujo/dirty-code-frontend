@@ -92,7 +92,7 @@ export default function Home() {
             <span className={systemStatus === 'ONLINE' ? 'text-green-500' : systemStatus === 'OFFLINE' ? 'text-red-500' : ''}>
               SYSTEM_STATUS: {systemStatus}
             </span>
-            <span>ALPHA v0.1.0</span>
+            <span>ALPHA v0.1.1</span>
             <a
               href="https://www.youtube.com/@CanalCodigoSujo"
               target="_blank"
