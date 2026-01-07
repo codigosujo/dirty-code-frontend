@@ -31,12 +31,12 @@ const AVATAR_OPTIONS = [
     '/logo.jpeg',
 ];
 
-type StatKey = 'intelligence' | 'charisma' | 'streetIntelligence' | 'stealth';
+type StatKey = 'intelligence' | 'charisma' | 'strength' | 'stealth';
 
 interface Stats {
     intelligence: number;
     charisma: number;
-    streetIntelligence: number;
+    strength: number;
     stealth: number;
 }
 
@@ -50,7 +50,7 @@ export default function AvatarEdit() {
     const [stats, setStats] = useState<Stats>({
         intelligence: 0,
         charisma: 0,
-        streetIntelligence: 0,
+        strength: 0,
         stealth: 0
     });
     const [availablePoints, setAvailablePoints] = useState(0);
@@ -67,7 +67,7 @@ export default function AvatarEdit() {
             setStats({
                 intelligence: avatar.intelligence || 0,
                 charisma: avatar.charisma || 0,
-                streetIntelligence: avatar.streetIntelligence || 0,
+                strength: avatar.strength || 0,
                 stealth: avatar.stealth || 0
             });
 
@@ -105,7 +105,7 @@ export default function AvatarEdit() {
             if (user?.activeAvatar) {
                 payload.intelligence = stats.intelligence;
                 payload.charisma = stats.charisma;
-                payload.streetIntelligence = stats.streetIntelligence;
+                payload.strength = stats.strength;
                 payload.stealth = stats.stealth;
 
                 newAvatar = await api.updateAvatar(payload);
@@ -198,7 +198,7 @@ export default function AvatarEdit() {
                             {[
                                 { key: 'intelligence' as StatKey, label: 'Inteligência', color: "primary" },
                                 { key: 'charisma' as StatKey, label: 'Carisma', color: "secondary" },
-                                { key: 'streetIntelligence' as StatKey, label: 'Inteligência de Rua', color: "warning" },
+                                { key: 'strength' as StatKey, label: 'Força', color: "warning" },
                                 { key: 'stealth' as StatKey, label: 'Furtividade', color: "danger" }
                             ].map((stat) => (
                                 <div key={stat.key} className="bg-white/5 p-5 rounded-2xl border border-white/5 relative group hover:border-white/10 transition-colors">
