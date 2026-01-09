@@ -70,7 +70,7 @@ export function UserProfileCard() {
                 <div className="col-span-1 md:w-auto flex flex-col items-center justify-center md:border-l border-white/10 md:pl-6 md:pr-6 h-full">
                     <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Dinheiro</div>
                     <div className="font-mono font-bold text-lg md:text-2xl text-green-400 break-all text-center">
-                        R$ {user?.activeAvatar?.money ?? 0}
+                        R$ {(user?.activeAvatar?.money ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                 </div>
 
