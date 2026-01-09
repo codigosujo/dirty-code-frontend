@@ -60,7 +60,7 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 export default function GameDashboard() {
-    const [activeTab, setActiveTab] = useState("bludiit");
+    const [activeTab, setActiveTab] = useState("Helldit");
 
     const content = MENU_ITEMS.find(item => item.id === activeTab);
 

@@ -10,9 +10,14 @@ export function HackingPage() {
 
     useEffect(() => {
         const fetchActions = async () => {
-            const data = await api.getActionsByType(GameActionType.HACKING);
-            setActions(data);
-            setIsLoading(false);
+            try {
+                const data = await api.getActionsByType(GameActionType.HACKING);
+                setActions(data);
+            } catch (error) {
+                console.error("HackingPage: Erro ao buscar ações:", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
         fetchActions();
     }, []);

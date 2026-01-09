@@ -27,19 +27,29 @@ export function ActionCard({ action }: ActionCardProps) {
     const handleAction = async () => {
         if (isStaminaInsufficient) {
             setFeedback({
-                message: "Você está de saco cheio de trabalhar, vá jogar um lolzinho ou tomar um café para desbaratinar...",
+                message: "Você está sem energia para trabalhar, vá jogar um lolzinho ou tomar um café para desbaratinar...",
                 type: 'stamina'
             });
             return;
         }
-        if (isDisabled) return;
+
+        if (isLoading) return;
+
         setIsLoading(true);
-        const result = await performAction(action);
-        setFeedback({ 
-            message: result.message, 
-            type: result.success ? 'success' : 'failure' 
-        });
-        setIsLoading(false);
+        try {
+            const result = await performAction(action);
+            setFeedback({ 
+                message: result.message, 
+                type: result.success ? 'success' : 'failure' 
+            });
+        } catch (error: any) {
+            setFeedback({
+                message: error.message || "Erro ao realizar ação. Tente novamente.",
+                type: 'failure'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     const stamina = action.stamina;
@@ -61,15 +71,16 @@ export function ActionCard({ action }: ActionCardProps) {
     ];
 
     const hasMissingRequirements = requirements.some(req => req.current < req.value);
-    const isDisabled = hasMissingRequirements || isLoading;
+    
+    const riskPercentage = Math.round((action.failureChance ?? 0) * 100);
 
-    console.log(`Renderizando imagem: /actions/images/${action.actionImage}`);
-
+    const isDisabled = isLoading;
+    
     return (
         <Card
-            isPressable={!isDisabled}
+            isPressable={true}
             onPress={handleAction}
-            className={`bg-black border border-white/10 hover:border-white/20 transition-all group w-full relative overflow-hidden ${isLoading ? 'cursor-wait' : ''}`}
+            className={`bg-black border border-white/10 hover:border-white/20 transition-all group w-full relative overflow-hidden ${isLoading ? 'cursor-wait' : ''} ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
             <AnimatePresence>
                 {feedback && (
@@ -127,14 +138,14 @@ export function ActionCard({ action }: ActionCardProps) {
                             <div className="flex items-center gap-1.5">
                                 <span className={`w-2 h-2 rounded-full ${stamina > 0 ? 'bg-blue-400' : 'bg-pink-500'}`}></span>
                                 <span className={stamina < 0 && isStaminaInsufficient ? 'text-pink-500 font-bold' : ''}>
-                                    {stamina > 0 ? '+' : ''}{stamina} Stamina
+                                    {stamina > 0 ? '+' : ''}{stamina} Energia
                                 </span>
                             </div>
                         )}
                         {xpReward !== undefined && xpReward !== 0 && (
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                                <span>{formatValue(xpReward)} XP</span>
+                                <span>{formatValue(xpReward)} Respeito</span>
                             </div>
                         )}
                     </div>
@@ -164,10 +175,10 @@ export function ActionCard({ action }: ActionCardProps) {
                     <Chip
                         size="sm"
                         variant="flat"
-                        color={((action.failureChance ?? 0) * 100) < 20 ? "success" : ((action.failureChance ?? 0) * 100) === 20 ? "warning" : "danger"}
+                        color={riskPercentage < 20 ? "success" : riskPercentage === 20 ? "warning" : "danger"}
                         className="font-bold font-mono"
                     >
-                        RISCO: {(action.failureChance ?? 0) * 100}%
+                        RISCO: {riskPercentage}%
                     </Chip>
                     {moneyReward !== undefined && moneyReward !== 0 && (
                         <div className={`text-2xl font-bold ${moneyReward > 0 ? 'text-green-500' : 'text-red-500'}`}>

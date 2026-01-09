@@ -103,59 +103,74 @@ export function UserProfileCard() {
                 <div className="col-span-2 md:flex-1 w-full flex flex-col gap-3">
 
                     {/* Life - Red */}
-                    <Progress
-                        label={
-                            <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">
-                                <span>Vida</span>
-                                <span>{user?.activeAvatar?.life ?? 0}%</span>
-                            </div>
-                        }
-                        value={user?.activeAvatar?.life ?? 0}
-                        color="danger"
-                        size="sm"
-                        classNames={{
-                            track: "bg-white/10 h-2",
-                            indicator: "h-2",
-                            label: "hidden", // We use custom label above
-                            value: "hidden"
-                        }}
-                    />
+                    <Tooltip
+                        content="Vida: Cuidado para não parar no hospital."
+                        placement="top"
+                        closeDelay={0}
+                    >
+                        <div className="w-full flex items-center gap-2">
+                            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-gray-400 min-w-[65px]">Vida:</span>
+                            <Progress
+                                value={user?.activeAvatar?.life ?? 0}
+                                color="danger"
+                                size="sm"
+                                classNames={{
+                                    track: "bg-white/10 h-2",
+                                    indicator: "h-2",
+                                    label: "hidden",
+                                    value: "hidden"
+                                }}
+                                className="flex-1"
+                            />
+                            <span className="text-[10px] md:text-xs font-mono text-gray-500 min-w-[35px] text-right">{user?.activeAvatar?.life ?? 0}/100</span>
+                        </div>
+                    </Tooltip>
 
-                    {/* Stamina - Yellow */}
-                    <Progress
-                        label={
-                            <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">
-                                <span>Stamina</span>
-                                <span>{user?.activeAvatar?.stamina ?? 0}%</span>
-                            </div>
-                        }
-                        value={user?.activeAvatar?.stamina ?? 0}
-                        size="sm"
-                        classNames={{
-                            track: "bg-white/10 h-2",
-                            indicator: "!bg-yellow-500 h-2",
-                            label: "hidden",
-                            value: "hidden"
-                        }}
-                    />
+                    {/* Energia - Yellow */}
+                    <Tooltip
+                        content="Energia: Mesmo vivendo a base de chocolate e café uma hora ela acaba."
+                        placement="top"
+                        closeDelay={0}
+                    >
+                        <div className="w-full flex items-center gap-2">
+                            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-gray-400 min-w-[65px]">Energia:</span>
+                            <Progress
+                                value={user?.activeAvatar?.stamina ?? 0}
+                                size="sm"
+                                classNames={{
+                                    track: "bg-white/10 h-2",
+                                    indicator: "!bg-yellow-500 h-2",
+                                    label: "hidden",
+                                    value: "hidden"
+                                }}
+                                className="flex-1"
+                            />
+                            <span className="text-[10px] md:text-xs font-mono text-gray-500 min-w-[35px] text-right">{user?.activeAvatar?.stamina ?? 0}/100</span>
+                        </div>
+                    </Tooltip>
 
-                    {/* XP - Purple */}
-                    <Progress
-                        label={
-                            <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">
-                                <span>XP</span>
-                                <span>{user?.activeAvatar?.experience ?? 0}%</span>
-                            </div>
-                        }
-                        value={user?.activeAvatar?.experience ?? 0}
-                        size="sm"
-                        classNames={{
-                            track: "bg-white/10 h-1.5",
-                            indicator: "!bg-purple-500 h-1.5",
-                            label: "hidden",
-                            value: "hidden"
-                        }}
-                    />
+                    {/* Respeito - Purple */}
+                    <Tooltip
+                        content="Respeito: Cada ponto que passa você fica mais próximo do Linus Torvalds"
+                        placement="top"
+                        closeDelay={0}
+                    >
+                        <div className="w-full flex items-center gap-2">
+                            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-gray-400 min-w-[65px]">Respeito:</span>
+                            <Progress
+                                value={user?.activeAvatar?.experience ?? 0}
+                                size="sm"
+                                classNames={{
+                                    track: "bg-white/10 h-1.5",
+                                    indicator: "!bg-purple-500 h-1.5",
+                                    label: "hidden",
+                                    value: "hidden"
+                                }}
+                                className="flex-1"
+                            />
+                            <span className="text-[10px] md:text-xs font-mono text-gray-500 min-w-[35px] text-right">{user?.activeAvatar?.experience ?? 0}/0</span>
+                        </div>
+                    </Tooltip>
                 </div>
 
             </CardBody>

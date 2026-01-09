@@ -88,8 +88,8 @@ export function RankingPage() {
                                 {/* Stats */}
                                 <div className="flex items-center gap-4 text-right">
                                     <div className="hidden sm:block">
-                                        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Experiência</div>
-                                        <div className="font-mono text-primary">{avatar.experience} XP</div>
+                                        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Respeito</div>
+                                        <div className="font-mono text-primary">{avatar.experience} Respeito</div>
                                     </div>
                                     <div className="text-right pl-4 border-l border-white/10">
                                         <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Nível</div>
