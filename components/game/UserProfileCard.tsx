@@ -47,79 +47,35 @@ export function UserProfileCard() {
 
     return (
         <Card className="w-full bg-black border border-white/10 p-0 overflow-hidden">
-            <CardBody className="p-4 flex flex-col md:flex-row gap-6 items-center">
+            <CardBody className="p-3 md:p-4 grid grid-cols-2 md:flex md:flex-row gap-4 md:gap-6 items-center">
 
-                {/* Profile Section */}
-                <div className="flex flex-col items-center gap-2 min-w-[120px]">
+                {/* Profile Section (Mobile: Top Left) */}
+                <div className="col-span-1 md:w-auto flex flex-col items-center gap-2 min-w-[100px] md:min-w-[120px]">
                     <div className="relative">
                         <Avatar
                             src={user?.activeAvatar?.picture}
-                            className="w-24 h-24 border-2 border-primary"
+                            className="w-16 h-16 md:w-24 md:h-24 border-2 border-primary"
                         />
-                        <div className="absolute -bottom-2 -right-2 bg-black border border-white/20 px-2 py-0.5 rounded text-[10px] font-mono text-primary font-bold">
+                        <div className="absolute -bottom-2 -right-2 bg-black border border-white/20 px-2 py-0.5 rounded text-[10px] font-mono text-primary font-bold shadow-lg">
                             LVL {user?.activeAvatar?.level}
                         </div>
                     </div>
-                    <h3 className="font-bold text-center text-lg leading-none mt-2">{user?.activeAvatar?.name}</h3>
-                    <p className="text-xs text-gray-500 font-mono">Iniciante</p>
+                    <div className="text-center">
+                        <h3 className="font-bold text-base md:text-lg leading-none mt-1 md:mt-2 truncate max-w-[120px]">{user?.activeAvatar?.name}</h3>
+                        <p className="text-[10px] md:text-xs text-gray-500 font-mono">Iniciante</p>
+                    </div>
                 </div>
 
-                {/* Main Stats Bars */}
-                <div className="flex-1 flex flex-col gap-4 w-full">
-
-                    {/* Life - Red */}
-                    <Progress
-                        label="Vida"
-                        value={user?.activeAvatar?.life ?? 0}
-                        color="danger"
-                        size="md"
-                        showValueLabel={true}
-                        classNames={{
-                            track: "bg-white/10",
-                            label: "text-xs uppercase font-bold tracking-wider text-gray-400",
-                            value: "text-xs uppercase font-bold tracking-wider text-gray-400"
-                        }}
-                    />
-
-                    {/* Stamina - Yellow */}
-                    <Progress
-                        label="Stamina"
-                        value={user?.activeAvatar?.stamina ?? 0}
-                        size="md"
-                        showValueLabel={true}
-                        classNames={{
-                            track: "bg-white/10",
-                            indicator: "!bg-yellow-500",
-                            label: "text-xs uppercase font-bold tracking-wider text-gray-400",
-                            value: "text-xs uppercase font-bold tracking-wider text-gray-400"
-                        }}
-                    />
-
-                    {/* XP - Purple */}
-                    <Progress
-                        label="Experiência"
-                        value={user?.activeAvatar?.experience ?? 0}
-                        size="md"
-                        showValueLabel={true}
-                        classNames={{
-                            track: "bg-white/10",
-                            indicator: "!bg-purple-500",
-                            label: "text-xs uppercase font-bold tracking-wider text-gray-400",
-                            value: "text-xs uppercase font-bold tracking-wider text-gray-400"
-                        }}
-                    />
-                </div>
-
-                {/* Money Section - Middle */}
-                <div className="flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 pl-0 md:pl-6 pr-0 md:pr-6 w-full md:w-auto min-w-[100px]">
+                {/* Money Section (Mobile: Top Right) */}
+                <div className="col-span-1 md:w-auto flex flex-col items-center justify-center md:border-l border-white/10 md:pl-6 md:pr-6 h-full">
                     <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Dinheiro</div>
-                    <div className="font-mono font-bold text-2xl text-green-400">
+                    <div className="font-mono font-bold text-lg md:text-2xl text-green-400 break-all text-center">
                         R$ {user?.activeAvatar?.money ?? 0}
                     </div>
                 </div>
 
-                {/* Attributes Section - Right Side */}
-                <div className="flex flex-row md:flex-col gap-4 md:gap-3 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6 w-full md:w-auto justify-center">
+                {/* Attributes Section (Mobile: Middle Row - Full Width) */}
+                <div className="col-span-2 md:col-span-1 md:w-auto flex flex-row md:flex-col gap-4 md:gap-3 md:border-l border-white/10 md:pl-6 justify-center md:order-last py-2 md:py-0 border-y border-white/10 md:border-y-0 bg-white/5 md:bg-transparent rounded-lg md:rounded-none">
                     {attributes.map((attr) => (
                         <div key={attr.short} className="flex items-center gap-2">
                             <Tooltip
@@ -129,16 +85,77 @@ export function UserProfileCard() {
                                         <div className="text-tiny">{attr.description}</div>
                                     </div>
                                 }
-                                placement="left"
+                                placement="top"
                                 closeDelay={0}
                             >
-                                <div className={`w-8 h-8 rounded ${attr.bg} flex items-center justify-center ${attr.color} font-bold text-xs ring-1 ${attr.ring} cursor-help`}>
+                                <div className={`w-8 h-8 md:w-8 md:h-8 rounded ${attr.bg} flex items-center justify-center ${attr.color} font-bold text-xs ring-1 ${attr.ring} cursor-help hover:scale-110 transition-transform`}>
                                     {attr.short}
                                 </div>
                             </Tooltip>
-                            <div className="font-mono font-bold text-sm">{attr.value}</div>
+                            <div className="font-mono font-bold text-sm hidden md:block">{attr.value}</div>
+                            {/* Mobile Value Badge */}
+                            <div className="font-mono font-bold text-xs md:hidden bg-black/50 px-1 rounded text-gray-300">{attr.value}</div>
                         </div>
                     ))}
+                </div>
+
+                {/* Main Stats Bars (Mobile: Bottom - Full Width) */}
+                <div className="col-span-2 md:flex-1 w-full flex flex-col gap-3">
+
+                    {/* Life - Red */}
+                    <Progress
+                        label={
+                            <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">
+                                <span>Vida</span>
+                                <span>{user?.activeAvatar?.life ?? 0}%</span>
+                            </div>
+                        }
+                        value={user?.activeAvatar?.life ?? 0}
+                        color="danger"
+                        size="sm"
+                        classNames={{
+                            track: "bg-white/10 h-2",
+                            indicator: "h-2",
+                            label: "hidden", // We use custom label above
+                            value: "hidden"
+                        }}
+                    />
+
+                    {/* Stamina - Yellow */}
+                    <Progress
+                        label={
+                            <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">
+                                <span>Stamina</span>
+                                <span>{user?.activeAvatar?.stamina ?? 0}%</span>
+                            </div>
+                        }
+                        value={user?.activeAvatar?.stamina ?? 0}
+                        size="sm"
+                        classNames={{
+                            track: "bg-white/10 h-2",
+                            indicator: "!bg-yellow-500 h-2",
+                            label: "hidden",
+                            value: "hidden"
+                        }}
+                    />
+
+                    {/* XP - Purple */}
+                    <Progress
+                        label={
+                            <div className="flex justify-between text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">
+                                <span>XP</span>
+                                <span>{user?.activeAvatar?.experience ?? 0}%</span>
+                            </div>
+                        }
+                        value={user?.activeAvatar?.experience ?? 0}
+                        size="sm"
+                        classNames={{
+                            track: "bg-white/10 h-1.5",
+                            indicator: "!bg-purple-500 h-1.5",
+                            label: "hidden",
+                            value: "hidden"
+                        }}
+                    />
                 </div>
 
             </CardBody>

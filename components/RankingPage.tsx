@@ -30,8 +30,8 @@ export function RankingPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-4xl font-bold uppercase text-white mb-2">Ranking Global</h1>
-                    <p className="text-gray-400 text-lg border-l-2 border-primary pl-4">
+                    <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Ranking Global</h1>
+                    <p className="text-gray-400 text-sm md:text-lg border-l-2 border-primary pl-4">
                         Os maiores devs do submundo sujo.
                     </p>
                 </div>

@@ -7,7 +7,7 @@ import { GlobalChat } from "@/components/game/pages/GlobalChat";
 import { WorkPage } from "@/components/game/pages/WorkPage";
 import { HackingPage } from "@/components/game/pages/HackingPage";
 import { TrainingPage } from "@/components/game/pages/TrainingPage";
-import { NightlifePage } from "@/components/game/pages/NightlifePage";
+import { MarketPage } from "@/components/game/pages/MarketPage";
 import { DefaultPage } from "@/components/game/pages/DefaultPage";
 
 // Define Menu Items
@@ -49,13 +49,13 @@ const MENU_ITEMS: MenuItem[] = [
         component: <TrainingPage />
     },
     {
-        title: "Vida Noturna",
-        id: "vida-noturna",
-        desc: "Balada, Energético e ... mais código?",
+        title: "Mercadinho",
+        id: "mercadinho",
+        desc: "Recupere energias. Café, Pizza e Energético.",
         color: "text-pink-400",
         border: "border-pink-500/50",
         path: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z",
-        component: <NightlifePage />
+        component: <MarketPage />
     },
 ];
 
@@ -66,7 +66,7 @@ export default function GameDashboard() {
 
     return (
         <div className="flex flex-col gap-2 min-h-screen pb-10">
-            <div className="container mx-auto lg:px-8 space-y-8">
+            <div className="container mx-auto lg:px-8 space-y-4 md:space-y-8">
                 {/* 1. Profile Card */}
                 <UserProfileCard />
 
@@ -78,7 +78,7 @@ export default function GameDashboard() {
                 />
 
                 {/* 3. Dynamic Content Area */}
-                <div className="bg-black/50 border border-white/10 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+                <div className="bg-black/50 border border-white/10 rounded-2xl p-4 md:p-8 relative overflow-hidden">
                     {content ? (
                         content.component
                     ) : (

@@ -48,6 +48,22 @@ export function GameMenuCarousel({ items, activeId, onSelect }: GameMenuCarousel
         };
     }, []);
 
+    // Auto-scroll to active item
+    useEffect(() => {
+        if (activeId && scrollRef.current) {
+            const activeElement = document.getElementById(`menu-item-${activeId}`);
+            if (activeElement) {
+                // Determine if we are on mobile (simple check or always center)
+                // always centering is good behavior for this type of menu
+                activeElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
+    }, [activeId]);
+
     const scroll = (direction: 'left' | 'right') => {
         if (scrollRef.current) {
             const scrollAmount = 280; // Largura do card (256px) + gap (16px) aprox
@@ -62,7 +78,7 @@ export function GameMenuCarousel({ items, activeId, onSelect }: GameMenuCarousel
         <div className="relative group w-full">
             {/* Left Arrow */}
             {showLeftArrow && (
-                <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center pr-12 bg-gradient-to-r from-black via-black/80 to-transparent">
+                <div className="hidden md:flex absolute left-0 top-0 bottom-0 z-10 items-center pr-12 bg-gradient-to-r from-black via-black/80 to-transparent">
                     <Button
                         isIconOnly
                         variant="flat"
@@ -79,7 +95,7 @@ export function GameMenuCarousel({ items, activeId, onSelect }: GameMenuCarousel
 
             {/* Right Arrow */}
             {showRightArrow && (
-                <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center pl-12 bg-gradient-to-l from-black via-black/80 to-transparent">
+                <div className="hidden md:flex absolute right-0 top-0 bottom-0 z-10 items-center pl-12 bg-gradient-to-l from-black via-black/80 to-transparent">
                     <Button
                         isIconOnly
                         variant="flat"
@@ -106,31 +122,32 @@ export function GameMenuCarousel({ items, activeId, onSelect }: GameMenuCarousel
                     return (
                         <Card
                             key={item.id}
+                            id={`menu-item-${item.id}`} // Used for auto-scroll
                             isPressable
                             onPress={() => onSelect(item.id)}
                             className={`
-                                flex-shrink-0 w-64 border bg-black transition-all duration-300 snap-start
+                                flex-shrink-0 w-36 md:w-64 border bg-black transition-all duration-300 snap-center md:snap-start
                                 ${isActive
-                                ? `bg-white/10 border-primary ring-1 ring-primary`
-                                : 'border-white/10 hover:border-white/30 hover:bg-white/5'
-                            }
+                                    ? `bg-white/10 border-primary ring-1 ring-primary`
+                                    : 'border-white/10 hover:border-white/30 hover:bg-white/5'
+                                }
                             `}
                         >
-                            <CardBody className="p-4 flex flex-col items-start gap-2 overflow-hidden">
+                            <CardBody className="p-3 md:p-4 flex flex-col items-start gap-1 md:gap-2 overflow-hidden h-full">
                                 {/* Icon & Title */}
-                                <div className="flex items-center gap-3 mb-1 w-full">
-                                    <div className={`p-2 rounded-lg bg-black/50 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <div className="flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 mb-0 md:mb-1 w-full">
+                                    <div className={`p-1.5 md:p-2 rounded-lg bg-black/50 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 md:w-6 md:h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d={item.path} />
                                         </svg>
                                     </div>
-                                    <span className={`font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-300 decoration-slice'}`}>
+                                    <span className={`font-bold uppercase tracking-wider text-[10px] md:text-sm text-center md:text-left ${isActive ? 'text-white' : 'text-gray-300 decoration-slice'}`}>
                                         {item.title}
                                     </span>
                                 </div>
 
                                 {/* Desc */}
-                                <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 text-left">
+                                <p className="text-[10px] md:text-xs text-gray-500 leading-relaxed line-clamp-2 md:line-clamp-2 text-center md:text-left hidden md:block">
                                     {item.desc}
                                 </p>
 

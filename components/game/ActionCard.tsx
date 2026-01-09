@@ -14,7 +14,7 @@ export function ActionCard({ action }: ActionCardProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     console.log(action.actionImage)
-    
+
     const handleAction = async () => {
         if (isDisabled) return;
         setIsLoading(true);
@@ -32,7 +32,7 @@ export function ActionCard({ action }: ActionCardProps) {
     };
 
     const isStaminaInsufficient = stamina < 0 ? (!!user && (user.activeAvatar?.stamina ?? 0) < Math.abs(stamina)) : false;
-    
+
     const requirements = [
         { label: "FOR", value: action.requiredStrength ?? 0, color: "text-red-500", bg: "bg-red-500/10", ring: "ring-red-500/20", current: user?.activeAvatar?.strength ?? 0 },
         { label: "INT", value: action.requiredIntelligence ?? 0, color: "text-blue-500", bg: "bg-blue-500/10", ring: "ring-blue-500/20", current: user?.activeAvatar?.intelligence ?? 0 },
@@ -44,83 +44,111 @@ export function ActionCard({ action }: ActionCardProps) {
     const isDisabled = isStaminaInsufficient || hasMissingRequirements || isLoading;
 
     console.log(`Renderizando imagem: /actions/images/${action.actionImage}`);
-    
+
     return (
-        <Card 
+        <Card
             isPressable={!isDisabled}
             onPress={handleAction}
             className={`bg-black border border-white/10 hover:border-white/20 transition-all group w-full ${isLoading ? 'cursor-wait' : ''}`}
         >
-            <CardBody className="flex flex-row items-center justify-between p-6 gap-6">
-                {action.actionImage && (
-                    <div className="flex-shrink-0 w-32 h-32 rounded-lg overflow-hidden border border-white/5">
-                        <img 
-                            src={`/actions/images/${action.actionImage}`}
-                            alt={action.title}
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                )}
-                <div className="flex-1 space-y-4">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                            <h3 className={`font-bold text-xl text-white group-hover:text-primary transition-colors`}>
-                                {action.title}
-                            </h3>
-                            {isLoading && (
-                                <span className="flex h-2 w-2">
-                                    <span className={`animate-ping absolute inline-flex h-2 w-2 rounded-full bg-primary opacity-75`}></span>
-                                    <span className={`relative inline-flex rounded-full h-2 w-2 bg-primary`}></span>
-                                </span>
+            <CardBody className="p-3 md:p-6">
+                <div className="flex flex-row gap-3 md:gap-6">
+                    {/* Image - Responsive Size */}
+                    {action.actionImage && (
+                        <div className="flex-shrink-0 w-12 h-12 md:w-32 md:h-32 rounded-lg overflow-hidden border border-white/5 bg-zinc-900">
+                            <img
+                                src={`/actions/images/${action.actionImage}`}
+                                alt={action.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
+
+                    <div className="flex-1 min-w-0 flex flex-col justify-between gap-1 md:gap-4">
+                        {/* Header: Title & Money */}
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <h3 className={`font-bold text-base md:text-xl text-white group-hover:text-primary transition-colors line-clamp-2 md:line-clamp-none`}>
+                                    {action.title}
+                                </h3>
+                                {isLoading && (
+                                    <span className="flex h-2 w-2 flex-shrink-0">
+                                        <span className={`animate-ping absolute inline-flex h-2 w-2 rounded-full bg-primary opacity-75`}></span>
+                                        <span className={`relative inline-flex rounded-full h-2 w-2 bg-primary`}></span>
+                                    </span>
+                                )}
+                            </div>
+
+                            {moneyReward !== undefined && moneyReward !== 0 && (
+                                <div className={`text-sm md:text-2xl font-bold font-mono whitespace-nowrap ${moneyReward > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                    {formatValue(moneyReward)} R$
+                                </div>
                             )}
                         </div>
-                        <p className="text-sm text-gray-400 leading-relaxed">{action.description}</p>
-                    </div>
 
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-mono text-gray-500">
-                        {stamina !== 0 && (
-                            <div className="flex items-center gap-1.5">
-                                <span className={`w-2 h-2 rounded-full ${stamina > 0 ? 'bg-blue-400' : 'bg-pink-500'}`}></span>
-                                <span className={stamina < 0 && isStaminaInsufficient ? 'text-pink-500 font-bold' : ''}>
-                                    {stamina > 0 ? '+' : ''}{stamina} Stamina
-                                </span>
-                            </div>
-                        )}
-                        {xpReward !== undefined && xpReward !== 0 && (
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                                <span>{formatValue(xpReward)} XP</span>
-                            </div>
-                        )}
-                    </div>
+                        {/* Description */}
+                        <p className="text-xs md:text-sm text-gray-400 leading-relaxed line-clamp-2 md:line-clamp-none">
+                            {action.description}
+                        </p>
 
-                    {requirements.length > 0 && (
-                        <div className="flex flex-row gap-2">
-                            {requirements.map((req, idx) => (
-                                <Tooltip 
-                                    key={idx} 
-                                    content={`${req.label}: Necessário ${req.value} (Você tem ${req.current})`}
-                                    delay={0}
-                                    closeDelay={0}
-                                    placement="bottom"
-                                >
-                                    <div 
-                                        className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold shadow-sm ring-1 ${req.bg} ${req.color} ${req.ring}`}
-                                    >
-                                        {req.value}
+                        {/* Footer: Stats & Requirements */}
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 mt-auto">
+
+                            {/* Costs / XP / Stamina */}
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] md:text-xs font-mono text-gray-500">
+                                {stamina !== 0 && (
+                                    <div className="flex items-center gap-1.5 bg-zinc-900/50 px-1.5 py-0.5 rounded border border-white/5">
+                                        <span className={`w-1.5 h-1.5 rounded-full ${stamina > 0 ? 'bg-blue-400' : 'bg-pink-500'}`}></span>
+                                        <span className={stamina < 0 && isStaminaInsufficient ? 'text-pink-500 font-bold' : ''}>
+                                            {stamina > 0 ? '+' : ''}{stamina} STA
+                                        </span>
                                     </div>
-                                </Tooltip>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                )}
+                                {xpReward !== undefined && xpReward !== 0 && (
+                                    <div className="flex items-center gap-1.5 bg-zinc-900/50 px-1.5 py-0.5 rounded border border-white/5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                        <span>{formatValue(xpReward)} XP</span>
+                                    </div>
+                                )}
+                            </div>
 
-                <div className="flex items-center gap-6">
-                    {moneyReward !== undefined && moneyReward !== 0 && (
-                        <div className={`text-2xl font-bold ${moneyReward > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                            {formatValue(moneyReward)} R$
+                            {/* Requirements */}
+                            {requirements.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 justify-end">
+                                    {requirements.filter(r => r.value > 0).map((req, idx) => {
+                                        const met = req.current >= req.value;
+                                        return (
+                                            <Tooltip
+                                                key={idx}
+                                                content={
+                                                    <div className="px-1 py-1">
+                                                        <div className="font-bold text-tiny">{req.label}</div>
+                                                        <div className="text-tiny">Necessário: {req.value}</div>
+                                                        <div className={`text-tiny ${met ? 'text-green-400' : 'text-red-400'}`}>Atual: {req.current}</div>
+                                                    </div>
+                                                }
+                                                delay={0}
+                                                closeDelay={0}
+                                                placement="top"
+                                            >
+                                                <div
+                                                    className={`
+                                                    h-6 min-w-[24px] px-1.5 rounded flex items-center justify-center text-[10px] font-bold shadow-sm ring-1 transition-all
+                                                    ${met
+                                                            ? 'bg-zinc-900 text-gray-400 ring-white/10 opacity-70 grayscale' // Requirement met styles 
+                                                            : `${req.bg} ${req.color} ${req.ring} opacity-100` // Unmet styles (highlighted)
+                                                        }
+                                                `}
+                                                >
+                                                    {req.label} {req.value}
+                                                </div>
+                                            </Tooltip>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </CardBody>
         </Card>

@@ -19,7 +19,8 @@ export interface Avatar {
 export enum GameActionType {
     HACKING = 'hacking',
     WORK = 'work',
-    TRAIN = 'train'
+    TRAIN = 'training',
+    MARKET = 'market'
 }
 
 export interface GameAction {
