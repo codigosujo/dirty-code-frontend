@@ -13,7 +13,16 @@ interface ActionCardProps {
 export function ActionCard({ action }: ActionCardProps) {
     const { performAction, user } = useGame();
     const [isLoading, setIsLoading] = useState(false);
-    const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'failure' | 'stamina' } | null>(null);
+    const [feedback, setFeedback] = useState<{ 
+        message: string; 
+        type: 'success' | 'failure' | 'stamina';
+        variations?: {
+            experience?: number;
+            life?: number;
+            stamina?: number;
+            money?: number;
+        } | null;
+    } | null>(null);
 
     useEffect(() => {
         if (feedback) {
@@ -40,7 +49,8 @@ export function ActionCard({ action }: ActionCardProps) {
             const result = await performAction(action);
             setFeedback({ 
                 message: result.message, 
-                type: result.success ? 'success' : 'failure' 
+                type: result.success ? 'success' : 'failure',
+                variations: result.variations
             });
         } catch (error: any) {
             setFeedback({
@@ -98,10 +108,40 @@ export function ActionCard({ action }: ActionCardProps) {
                             setFeedback(null);
                         }}
                     >
-                        <div className="space-y-2">
-                            <p className="text-sm md:text-base font-medium leading-tight max-w-[80%] mx-auto">
+                        <div className="space-y-4">
+                            <p className="text-sm md:text-base font-medium leading-tight max-w-[80%] mx-auto whitespace-pre-line">
                                 {feedback.message}
                             </p>
+                            {feedback.variations && (
+                                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-mono">
+                                    {feedback.variations.stamina !== 0 && feedback.variations.stamina !== undefined && (
+                                        <div className={`flex items-center gap-1.5 ${feedback.variations.stamina < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                            <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                            <span>
+                                                {feedback.variations.stamina > 0 ? '+' : ''}{feedback.variations.stamina} Energia
+                                            </span>
+                                        </div>
+                                    )}
+                                    {feedback.variations.experience !== 0 && feedback.variations.experience !== undefined && (
+                                        <div className={`flex items-center gap-1.5 ${feedback.variations.experience < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                            <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                                            <span>{formatValue(feedback.variations.experience)} Respeito</span>
+                                        </div>
+                                    )}
+                                    {feedback.variations.money !== 0 && feedback.variations.money !== undefined && (
+                                        <div className={`flex items-center gap-1.5 ${feedback.variations.money < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                            <span>{feedback.variations.money > 0 ? '+' : ''}{feedback.variations.money.toFixed(2)} R$</span>
+                                        </div>
+                                    )}
+                                    {feedback.variations.life !== 0 && feedback.variations.life !== undefined && (
+                                        <div className={`flex items-center gap-1.5 ${feedback.variations.life < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                            <span>{formatValue(feedback.variations.life)} HP</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 )}
@@ -136,7 +176,7 @@ export function ActionCard({ action }: ActionCardProps) {
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-mono text-gray-500">
                         {stamina !== 0 && (
                             <div className="flex items-center gap-1.5">
-                                <span className={`w-2 h-2 rounded-full ${stamina > 0 ? 'bg-blue-400' : 'bg-pink-500'}`}></span>
+                                <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
                                 <span className={stamina < 0 && isStaminaInsufficient ? 'text-pink-500 font-bold' : ''}>
                                     {stamina > 0 ? '+' : ''}{stamina} Energia
                                 </span>

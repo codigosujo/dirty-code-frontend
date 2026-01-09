@@ -109,7 +109,16 @@ export const api = {
         }
     },
 
-    performAction: async (actionId: string): Promise<{ success: boolean; avatar: Avatar }> => {
+    performAction: async (actionId: string): Promise<{
+        success: boolean;
+        avatar: Avatar;
+        variations?: {
+            experience?: number;
+            life?: number;
+            stamina?: number;
+            money?: number;
+        }
+    }> => {
         const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/dirty-code';
         try {
             const token = await api.getToken();

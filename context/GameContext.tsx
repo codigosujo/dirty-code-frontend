@@ -10,7 +10,16 @@ interface GameContextType {
     isLoading: boolean;
     login: () => Promise<void>;
     logout: () => void;
-    performAction: (action: any) => Promise<{ success: boolean; message: string }>;
+    performAction: (action: any) => Promise<{ 
+        success: boolean; 
+        message: string; 
+        variations?: {
+            experience?: number;
+            life?: number;
+            stamina?: number;
+            money?: number;
+        } | null;
+    }>;
     refreshUser: (updates: Partial<User>) => void;
 }
 
@@ -69,11 +78,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
 
 
-    const performAction = async (action: any): Promise<{ success: boolean; message: string }> => {
+    const performAction = async (action: any): Promise<{ 
+        success: boolean; 
+        message: string;
+        variations?: {
+            experience?: number;
+            life?: number;
+            stamina?: number;
+            money?: number;
+        } | null;
+    }> => {
         if (!user) {
             console.error("User not logged in.");
             return { success: false, message: "Usuário não logado" };
         }
+
+        const oldAvatar = user.activeAvatar;
 
         try {
             const result = await api.performAction(action.id);
@@ -107,8 +127,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 }
             }
 
+            // Get variations
+            const variations = result.variations || (oldAvatar ? {
+                experience: updatedAvatar.experience - oldAvatar.experience,
+                life: updatedAvatar.life - oldAvatar.life,
+                stamina: updatedAvatar.stamina - oldAvatar.stamina,
+                money: updatedAvatar.money - oldAvatar.money,
+            } : null);
+
             router.refresh();
-            return { success: result.success, message: finalMessage };
+            return { 
+                success: result.success, 
+                message: finalMessage,
+                variations
+            };
         } catch (e: any) {
             console.error(e);
             return { success: false, message: e.message || "Erro ao realizar ação" };
