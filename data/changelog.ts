@@ -7,8 +7,20 @@ export interface ChangelogItem {
 
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
+        version: "0.1.3",
+        title: "Sistema de Timeouts: Hospital & Prisão",
+        date: "10/01/2026",
+        items: [
+            "Level up: Agora nosso sistema de respeito/experiência funciona!",
+            "Hospital: Implementado sistema de internação quando HP chega a zero.",
+            "Prisão: Nova página de Prisão! Ações ilegais agora podem te mandar pra cadeia.",
+            "Comprar Liberdade: Pague para sair do hospital ou prisão antes do tempo.",
+            "Lock Inteligente: Não consegue realizar ações enquanto estiver no hospital ou prisão."
+        ]
+    },
+    {
         version: "0.1.2",
-        title: "Ranking & Comunidade",
+        title: "Ranking & Notícias",
         date: "08/01/2026",
         items: [
             "Ranking Global: Veja quem são os 10 maiores criminosos.",
