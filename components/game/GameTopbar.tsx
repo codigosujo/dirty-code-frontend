@@ -29,6 +29,7 @@ export function GameTopbar() {
                         <Link href="/game/user" className="hover:text-white transition-colors">Perfil</Link>
                         <Link href="/game/ranking" className="hover:text-white transition-colors">Ranking</Link>
                         <Link href="/game/news" className="hover:text-white transition-colors">Notícias</Link>
+                        <Link href="https://github.com/DirtyCode-The-Game" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Github</Link>
                     </div>
                 </div>
 
@@ -59,7 +60,7 @@ export function GameTopbar() {
                             onPress={logout}
                             className="font-mono uppercase text-xs"
                         >
-                            Sair do Sistema
+                            Sair
                         </Button>
                     </div>
                 </div>
@@ -84,18 +85,20 @@ export function GameTopbar() {
                             Ranking
                         </Link>
                         <Link
-                            href="#"
-                            className="p-2 hover:bg-white/5 rounded-lg text-gray-300 hover:text-white transition-colors font-medium"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            Comunidade
-                        </Link>
-                        <Link
                             href="/game/news"
                             className="p-2 hover:bg-white/5 rounded-lg text-gray-300 hover:text-white transition-colors font-medium"
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Notícias
+                        </Link>
+                        <Link
+                            href="https://github.com/DirtyCode-The-Game"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 hover:bg-white/5 rounded-lg text-gray-300 hover:text-white transition-colors font-medium"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Github
                         </Link>
                     </nav>
 
@@ -111,7 +114,7 @@ export function GameTopbar() {
                         }}
                         className="font-mono uppercase text-sm w-full"
                     >
-                        Sair do Sistema
+                        Sair
                     </Button>
                 </div>
             )}
