@@ -1,6 +1,7 @@
 'use client'
 
 import { ActionCard } from "@/components/game/ActionCard";
+import { ActionQuantitySelector } from "@/components/game/ActionQuantitySelector";
 import { useEffect, useState } from "react";
 import { api, GameAction, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
@@ -24,11 +25,14 @@ export function WorkPage() {
 
     return (
         <div>
-            <div>
-                <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Trabalho</h1>
-                <p className="text-gray-400 text-sm md:text-lg border-l-2 border-primary pl-4">
-                    Onde o filho chora e a mãe não vê. Escolha seu veneno.
-                </p>
+            <div className="flex justify-between items-start md:items-center">
+                <div>
+                    <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Trabalho</h1>
+                    <p className="text-gray-400 text-sm md:text-lg border-l-2 border-primary pl-4">
+                        Onde o filho chora e a mãe não vê. Escolha seu veneno.
+                    </p>
+                </div>
+                <ActionQuantitySelector />
             </div>
 
             <div className="grid grid-cols-1 gap-4 mt-6">

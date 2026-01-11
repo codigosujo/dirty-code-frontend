@@ -124,9 +124,10 @@ export const api = {
         }
     },
 
-    performAction: async (actionId: string): Promise<{
+    performAction: async (actionId: string, count: number = 1): Promise<{
         success: boolean;
         avatar: Avatar;
+        timesExecuted?: number;
         variations?: {
             experience?: number;
             life?: number;
@@ -138,7 +139,7 @@ export const api = {
         try {
             const token = await api.getToken();
 
-            const response = await fetch(`${baseUrl}/v1/actions/${actionId}/perform`, {
+            const response = await fetch(`${baseUrl}/v1/actions/${actionId}/perform?times=${count}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
