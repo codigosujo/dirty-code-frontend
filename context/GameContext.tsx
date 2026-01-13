@@ -37,7 +37,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [timeoutRedirectCallback, setTimeoutRedirectCallback] = useState<(() => void) | undefined>(undefined);
     const router = useRouter();
 
-    // Self-healing: Fetch user from BFF if not present
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -55,6 +54,27 @@ export function GameProvider({ children }: { children: ReactNode }) {
             fetchUser();
         }
     }, [user]);
+
+    useEffect(() => {
+        if (!user?.activeAvatar) return;
+
+        const POLL_INTERVAL = 30000;
+
+        const pollTimer = setInterval(async () => {
+            try {
+                const response = await fetch('/api/user/me');
+                if (response.ok) {
+                    const serverUser = await response.json();
+                    setUser(serverUser);
+                    localStorage.setItem('dirty_user_info', JSON.stringify(serverUser));
+                }
+            } catch (error) {
+                console.error('Failed to sync with backend:', error);
+            }
+        }, POLL_INTERVAL);
+
+        return () => clearInterval(pollTimer);
+    }, [user?.activeAvatar?.id]);
 
     const logout = async () => {
         setIsLoading(true);
