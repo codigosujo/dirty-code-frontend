@@ -4,6 +4,7 @@ export interface Avatar {
     picture?: string;
     level: number;
     experience: number;
+    totalExperience?: number;
     nextLevelExperience: number;
     stamina: number;
     life: number;

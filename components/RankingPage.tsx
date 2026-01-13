@@ -30,7 +30,7 @@ export function RankingPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Ranking Global</h1>
+                    <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Ranking</h1>
                     <p className="text-gray-400 text-sm md:text-lg border-l-2 border-primary pl-4">
                         Os maiores devs do submundo sujo.
                     </p>
@@ -49,7 +49,7 @@ export function RankingPage() {
                     </div>
                 ) : ranking.length === 0 ? (
                     <div className="text-center py-10 text-gray-500">
-                        Nenhum criminoso encontrado. O crime compensa?
+                        Nenhum dev encontrado.
                     </div>
                 ) : (
                     ranking.map((avatar, index) => (
@@ -69,11 +69,9 @@ export function RankingPage() {
                                             </span>
                                         }
                                         description={
-                                            <div className="flex gap-2 text-xs text-gray-500 mt-0.5">
-                                                <span>Level {avatar.level}</span>
-                                                <span className="text-gray-600">•</span>
-                                                <span className="truncate max-w-[150px]">{avatar.active ? 'Online' : 'Offline'}</span>
-                                            </div>
+                                            <span className="text-xs text-gray-400">
+                                                Respeito {avatar.totalExperience || 0}
+                                            </span>
                                         }
                                         avatarProps={{
                                             src: avatar.picture ? (avatar.picture.startsWith('/') ? avatar.picture : `/${avatar.picture}`) : '/avatars/avatar_1.png',
@@ -88,8 +86,8 @@ export function RankingPage() {
                                 {/* Stats */}
                                 <div className="flex items-center gap-4 text-right">
                                     <div className="hidden sm:block">
-                                        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Respeito</div>
-                                        <div className="font-mono text-primary">{avatar.experience} Respeito</div>
+                                        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Dinheiro</div>
+                                        <div className="font-mono text-primary">R$ {avatar.money?.toFixed(2) || '0.00'}</div>
                                     </div>
                                     <div className="text-right pl-4 border-l border-white/10">
                                         <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Nível</div>
