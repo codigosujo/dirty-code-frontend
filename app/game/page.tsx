@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 import { UserProfileCard } from "@/components/game/UserProfileCard";
-import { GameMenuCarousel, MenuItem } from "@/components/game/GameMenuCarousel";
+import { GameMenu, MenuItem } from "@/components/game/GameMenu";
 import { GlobalChat } from "@/components/game/pages/GlobalChat";
 import { WorkPage } from "@/components/game/pages/WorkPage";
 import { HackingPage } from "@/components/game/pages/HackingPage";
@@ -151,8 +151,8 @@ export default function GameDashboard() {
                 {/* 1. Profile Card */}
                 <UserProfileCard />
 
-                {/* 2. Menu Carousel */}
-                <GameMenuCarousel
+                {/* 2. Game Menu Grid */}
+                <GameMenu
                     items={MENU_ITEMS}
                     activeId={activeTab}
                     onSelect={handleTabChange}

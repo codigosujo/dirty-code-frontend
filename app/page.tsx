@@ -29,7 +29,7 @@ export default function Home() {
     };
 
     checkHealth();
-    const interval = setInterval(checkHealth, 30000); // Check every 30s
+    const interval = setInterval(checkHealth, 15000); // Check every 15s
     return () => clearInterval(interval);
   }, []);
 

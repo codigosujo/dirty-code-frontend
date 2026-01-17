@@ -1,7 +1,6 @@
 'use server'
 
 import { cookies } from 'next/headers';
-import { User } from '@/services/api';
 
 const getBackendUrl = () => process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/dirty-code';
 
@@ -202,6 +201,29 @@ export async function buyFreedomAction() {
     if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText || "Failed to buy freedom");
+    }
+
+    return await res.json();
+}
+
+export async function checkAvatarNameAction(name: string) {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('dirty_token')?.value;
+
+    if (!token) {
+        throw new Error("Unauthorized");
+    }
+
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/v1/avatars/check-name?name=${encodeURIComponent(name)}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!res.ok) {
+        return { available: true };
     }
 
     return await res.json();

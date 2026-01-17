@@ -5,13 +5,15 @@ import { ActionQuantitySelector } from "@/components/game/ActionQuantitySelector
 import { useEffect, useState } from "react";
 import { api, GameAction, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
-import Image from "next/image";
+import { getNoMoneyMessage, isNoMoneyError } from "@/lib/game-utils";
 
 export function HospitalPage() {
     const [actions, setActions] = useState<GameAction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { user, refreshUser } = useGame();
+    const { user, refreshUser, actionCounts, setActionCountForCategory } = useGame();
+    const actionCount = actionCounts['hospital'] || 1;
+    const setActionCount = (count: number) => setActionCountForCategory('hospital', count);
 
     useEffect(() => {
         const fetchActions = async () => {
@@ -90,7 +92,12 @@ export function HospitalPage() {
 
             window.location.href = '/game';
         } catch (error: any) {
-            alert(error.message || 'Erro ao comprar liberdade');
+            let message = error.message || 'Erro ao comprar liberdade';
+            
+            if (isNoMoneyError(message)) {
+                message = await getNoMoneyMessage();
+            }
+            alert(message);
         } finally {
             setIsProcessing(false);
         }
@@ -119,13 +126,12 @@ export function HospitalPage() {
                         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
                             {/* Hospital Image */}
                             <div className="flex-shrink-0">
-                                <Image
-                                    src="/hospital_scene.png"
+                                <img
+                                    src={`/hospital_scene.png?v=${new Date().getTime()}`}
                                     alt="Hospital Scene"
                                     width={400}
                                     height={300}
                                     className="rounded-lg opacity-90 border border-red-500/30"
-                                    priority={false}
                                 />
                             </div>
 
@@ -189,7 +195,9 @@ export function HospitalPage() {
                                             ) : (
                                                 <>
                                                     <span>💰</span>
-                                                    Comprar Liberdade ({freedomCost.toFixed(2)} R$)
+                                                    <span className={!canAffordFreedom ? 'text-red-500 font-bold' : ''}>
+                                                        Comprar Liberdade ({freedomCost.toFixed(2)} R$)
+                                                    </span>
                                                 </>
                                             )}
                                         </button>
@@ -231,12 +239,12 @@ export function HospitalPage() {
                         Cuide da sua saúde. HP baixo é refactoring na carne.
                     </p>
                 </div>
-                <ActionQuantitySelector />
+                <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
             </div>
 
             <div className="grid grid-cols-1 gap-4 mt-6">
                 {actions.map(action => (
-                    <ActionCard key={action.id} action={action} />
+                    <ActionCard key={action.id} action={action} actionCount={actionCount} />
                 ))}
                 {!isLoading && actions.length === 0 && (
                     <p className="text-gray-500 font-mono italic">

@@ -7,9 +7,11 @@ import { api, GameAction, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
 
 export function MarketPage() {
-    const { user } = useGame();
+    const { user, actionCounts, setActionCountForCategory } = useGame();
     const [actions, setActions] = useState<GameAction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const actionCount = actionCounts['market'] || 1;
+    const setActionCount = (count: number) => setActionCountForCategory('market', count);
 
     useEffect(() => {
         const fetchActions = async () => {
@@ -32,12 +34,12 @@ export function MarketPage() {
                         Tudo que você precisa para virar a noite codando. Aceitamos VR.
                     </p>
                 </div>
-                <ActionQuantitySelector />
+                <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
             </div>
 
             <div className="grid grid-cols-1 gap-4 mt-6">
                 {actions.map(action => (
-                    <ActionCard key={action.id} action={action} />
+                    <ActionCard key={action.id} action={action} actionCount={actionCount} />
                 ))}
                 {!isLoading && actions.length === 0 && (
                     <p className="text-gray-500 font-mono italic">O mercadinho está fechado. Volte mais tarde.</p>

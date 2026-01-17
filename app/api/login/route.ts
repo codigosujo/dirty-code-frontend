@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     });
 
     try {
-        const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080/dirty-code';
+        const backendUrl = process.env.BACKEND_URL || 'http://127.0.0.1:8080/dirty-code';
 
         const userRes = await fetch(`${backendUrl}/v1/users`, {
             headers: {

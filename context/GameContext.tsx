@@ -3,6 +3,7 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { api, User } from '../services/api';
 import { useRouter } from 'next/navigation';
+import { chatService, ChatMessage } from '@/services/chatService';
 
 
 interface GameContextType {
@@ -22,10 +23,12 @@ interface GameContextType {
         } | null;
     }>;
     refreshUser: (updates: Partial<User>) => void;
-    actionCount: number;
-    setActionCount: (count: number) => void;
+    actionCounts: Record<string, number>;
+    setActionCountForCategory: (category: string, count: number) => void;
     onTimeoutRedirect?: () => void;
     setOnTimeoutRedirect: (callback: () => void) => void;
+    chatMessages: ChatMessage[];
+    chatToken: string | null;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -33,9 +36,43 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export function GameProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [actionCount, setActionCount] = useState(1);
+    const [actionCounts, setActionCounts] = useState<Record<string, number>>({});
     const [timeoutRedirectCallback, setTimeoutRedirectCallback] = useState<(() => void) | undefined>(undefined);
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [chatToken, setChatToken] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        if (!user) return;
+
+        const connectChat = async () => {
+            try {
+                const response = await fetch('/api/auth/token');
+                if (response.ok) {
+                    const data = await response.json();
+                    setChatToken(data.token);
+                    chatService.connect((msg) => {
+                        setChatMessages((prev) => {
+                            if (Array.isArray(msg)) {
+                                const newMessages = msg.filter(m => !prev.some(p => p.message === m.message && p.avatarName === m.avatarName));
+                                return [...prev, ...newMessages];
+                            }
+                            if (prev.some(m => m.message === msg.message && m.avatarName === msg.avatarName)) return prev;
+                            return [...prev, msg];
+                        });
+                    }, data.token);
+                }
+            } catch (error) {
+                console.error("Erro ao conectar no chat", error);
+            }
+        };
+
+        connectChat();
+
+        return () => {
+            chatService.disconnect();
+        };
+    }, [user?.activeAvatar?.id]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -96,7 +133,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setIsLoading(true);
         try {
             // Redirect to Backend Login
-            window.location.href = process.env.LOGIN_FULL_URL || 'http://localhost:8080/dirty-code/v1/gmail/auth-page';
+            window.location.href = process.env.LOGIN_FULL_URL || 'http://127.0.0.1:8080/dirty-code/v1/gmail/auth-page';
         } catch (error) {
             console.error("Login redirect failed", error);
             setIsLoading(false);
@@ -192,6 +229,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
         });
         router.refresh();
     }
+    
+    const setActionCountForCategory = (category: string, count: number) => {
+        setActionCounts(prev => ({
+            ...prev,
+            [category]: count
+        }));
+    };
 
     const setOnTimeoutRedirect = (callback: () => void) => {
         setTimeoutRedirectCallback(() => callback);
@@ -205,10 +249,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
             logout,
             performAction,
             refreshUser,
-            actionCount,
-            setActionCount,
+            actionCounts,
+            setActionCountForCategory,
             onTimeoutRedirect: timeoutRedirectCallback,
-            setOnTimeoutRedirect
+            setOnTimeoutRedirect,
+            chatMessages,
+            chatToken
         }}>
             {children}
         </GameContext.Provider>

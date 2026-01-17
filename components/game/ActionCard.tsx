@@ -1,17 +1,19 @@
 'use client'
 
-import { useGame } from "@/context/GameContext";
-import { Card, CardBody, Tooltip, Chip } from "@heroui/react";
-import { useState, useEffect } from "react";
-import { GameAction } from "@/services/api";
-import { motion, AnimatePresence } from "framer-motion";
+import {useGame} from "@/context/GameContext";
+import {Card, CardBody, Chip, Tooltip} from "@heroui/react";
+import {useEffect, useState} from "react";
+import {GameAction} from "@/services/api";
+import {AnimatePresence, motion} from "framer-motion";
+import {getNoEnergyMessage, getNoMoneyMessage, isNoMoneyError} from "@/lib/game-utils";
 
 interface ActionCardProps {
     action: GameAction;
+    actionCount?: number;
 }
 
-export function ActionCard({ action }: ActionCardProps) {
-    const { performAction, user, actionCount } = useGame();
+export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
+    const { performAction, user } = useGame();
     const [isLoading, setIsLoading] = useState(false);
     const [feedback, setFeedback] = useState<{ 
         message: string; 
@@ -35,25 +37,29 @@ export function ActionCard({ action }: ActionCardProps) {
     }, [feedback]);
 
     const handleAction = async () => {
-        if (isStaminaInsufficient) {
-            let message = "Você está sem energia para trabalhar, vá jogar um lolzinho ou tomar um café para desbaratinar...";
-            
-            try {
-                const response = await fetch('/actions/descriptions/no_energy.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    const pool = data.stamina;
-                    if (pool && pool.length > 0) {
-                        message = pool[Math.floor(Math.random() * pool.length)];
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to load stamina message", error);
-            }
+        const staminaNeededPerAction = Math.abs(action.stamina);
+        const currentStamina = user?.activeAvatar?.stamina ?? 0;
+        
+        // Se a ação consome stamina e o usuário não tem nada
+        if (action.stamina < 0 && currentStamina < staminaNeededPerAction) {
+            const message = await getNoEnergyMessage();
 
             setFeedback({
                 message,
                 type: 'stamina'
+            });
+            return;
+        }
+
+        const moneyRequiredPerAction = action.money < 0 ? Math.abs(action.money) : 0;
+        const currentMoney = user?.activeAvatar?.money ?? 0;
+
+        if (moneyRequiredPerAction > 0 && currentMoney < moneyRequiredPerAction) {
+            const message = await getNoMoneyMessage();
+
+            setFeedback({
+                message,
+                type: 'failure'
             });
             return;
         }
@@ -64,15 +70,39 @@ export function ActionCard({ action }: ActionCardProps) {
         try {
             const result = await performAction(action, actionCount);
             
+            let message = result.message;
+            if (result.timesExecuted && result.timesExecuted < actionCount) {
+                const staminaNeededPerAction = Math.abs(action.stamina);
+                const moneyNeededPerAction = action.money < 0 ? Math.abs(action.money) : 0;
+                
+                const currentStamina = user?.activeAvatar?.stamina ?? 0;
+                const currentMoney = user?.activeAvatar?.money ?? 0;
+
+                let reason = "recursos insuficientes";
+                if (action.stamina < 0 && currentStamina < staminaNeededPerAction) {
+                    reason = "Stamina insuficiente";
+                } else if (moneyNeededPerAction > 0 && currentMoney < moneyNeededPerAction) {
+                    reason = "Dinheiro insuficiente";
+                }
+
+                message = `Executado ${result.timesExecuted}x. ${message}\n(${reason} para ${actionCount}x)`;
+            }
+
             setFeedback({ 
-                message: result.message, 
+                message, 
                 type: result.success ? 'success' : 'failure',
                 count: result.timesExecuted,
                 variations: result.variations
             });
         } catch (error: any) {
+            let message = error.message || "Erro ao realizar ação. Tente novamente.";
+            
+            if (isNoMoneyError(message)) {
+                message = await getNoMoneyMessage();
+            }
+
             setFeedback({
-                message: error.message || "Erro ao realizar ação. Tente novamente.",
+                message,
                 type: 'failure'
             });
         } finally {
@@ -89,7 +119,6 @@ export function ActionCard({ action }: ActionCardProps) {
         return `${sign}${value}`;
     };
 
-    const isStaminaInsufficient = stamina < 0 ? (!!user && (user.activeAvatar?.stamina ?? 0) < Math.abs(stamina)) : false;
 
     const requirements = [
         { label: "FOR", value: action.requiredStrength ?? 0, color: "text-red-500", bg: "bg-red-500/10", ring: "ring-red-500/20", current: user?.activeAvatar?.strength ?? 0 },
@@ -98,17 +127,12 @@ export function ActionCard({ action }: ActionCardProps) {
         { label: "DIS", value: action.requiredStealth ?? 0, color: "text-gray-500", bg: "bg-gray-500/10", ring: "ring-gray-500/20", current: user?.activeAvatar?.stealth ?? 0 },
     ];
 
-    const hasMissingRequirements = requirements.some(req => req.current < req.value);
-    
     const riskPercentage = Math.round((action.failureChance ?? 0) * 100);
-
-    const isDisabled = isLoading;
-    
     return (
         <Card
             isPressable={true}
             onPress={handleAction}
-            className={`bg-black border border-white/10 hover:border-white/20 transition-all group w-full relative overflow-hidden ${isLoading ? 'cursor-wait' : ''} ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+            className={`bg-black border border-white/10 hover:border-white/20 transition-all group w-full relative overflow-hidden ${isLoading ? 'cursor-wait' : ''} ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
             <AnimatePresence>
                 {feedback && (
@@ -169,7 +193,7 @@ export function ActionCard({ action }: ActionCardProps) {
                 {action.actionImage && (
                     <div className="flex-shrink-0 w-32 h-32 rounded-lg overflow-hidden border border-white/5">
                         <img
-                            src={`/actions/images/${action.actionImage}`}
+                            src={`/actions/images/${action.actionImage}?v=${new Date().getTime()}`}
                             alt={action.title}
                             className="w-full h-full object-cover"
                         />
@@ -195,7 +219,7 @@ export function ActionCard({ action }: ActionCardProps) {
                         {stamina !== 0 && (
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                                <span className={stamina < 0 && isStaminaInsufficient ? 'text-pink-500 font-bold' : ''}>
+                                <span className={stamina < 0 && (user?.activeAvatar?.stamina ?? 0) < Math.abs(stamina) ? 'text-red-500 font-bold' : ''}>
                                     {stamina > 0 ? '+' : ''}{stamina} Energia
                                 </span>
                             </div>
@@ -239,7 +263,7 @@ export function ActionCard({ action }: ActionCardProps) {
                         RISCO: {riskPercentage}%
                     </Chip>
                     {moneyReward !== undefined && moneyReward !== 0 && (
-                        <div className={`text-2xl font-bold ${moneyReward > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        <div className={`text-2xl font-bold ${moneyReward > 0 ? 'text-green-500' : (user?.activeAvatar?.money ?? 0) < Math.abs(moneyReward) ? 'text-red-600' : 'text-red-500'}`}>
                             {formatValue(moneyReward)} R$
                         </div>
                     )}

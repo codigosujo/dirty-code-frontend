@@ -25,6 +25,9 @@ export default function OnboardingPage() {
     const [story, setStory] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState(AVATAR_OPTIONS[0]);
     const [isLoading, setIsLoading] = useState(false);
+    const [nameError, setNameError] = useState('');
+    const [isCheckingName, setIsCheckingName] = useState(false);
+    const [nameAvailable, setNameAvailable] = useState(true);
 
     // If user already has an avatar, redirect to game
     useEffect(() => {
@@ -36,7 +39,10 @@ export default function OnboardingPage() {
     // Set initial data
     useEffect(() => {
         if (user && !user.activeAvatar) {
-            if (user.name) setName(user.name);
+            if (user.name) {
+                setName(user.name);
+                checkNameAvailability(user.name);
+            }
 
             // Fetch default story from histories.json
             const loadStory = async () => {
@@ -54,6 +60,48 @@ export default function OnboardingPage() {
             loadStory();
         }
     }, [user]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (name.trim() && name.length >= 3) {
+                checkNameAvailability(name);
+            } else {
+                setNameError('');
+                setNameAvailable(true);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [name]);
+
+    const checkNameAvailability = async (nameToCheck: string) => {
+        if (!nameToCheck.trim()) return;
+
+        setIsCheckingName(true);
+        setNameError('');
+        try {
+            const result = await api.checkNameAvailability(nameToCheck);
+            setNameAvailable(result.available);
+
+            if (!result.available) {
+                // Load random satiric message
+                const response = await fetch('/avatars/same_name.json');
+                const data = await response.json();
+                if (data.messages && data.messages.length > 0) {
+                    const randomMsg = data.messages[Math.floor(Math.random() * data.messages.length)];
+                    setNameError(randomMsg);
+                } else {
+                    setNameError('Este nome já está em uso.');
+                }
+            } else {
+                setNameError('');
+            }
+        } catch (error) {
+            console.error('Error checking name:', error);
+        } finally {
+            setIsCheckingName(false);
+        }
+    };
 
     const handleSubmit = async () => {
         if (!name.trim()) return;
@@ -216,6 +264,15 @@ export default function OnboardingPage() {
                         onChange={(e) => setName(e.target.value)}
                         variant="bordered"
                         isRequired
+                        isInvalid={!nameAvailable}
+                        errorMessage={nameError}
+                        endContent={
+                            isCheckingName && (
+                                <div className="flex items-center">
+                                    <span className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+                                </div>
+                            )
+                        }
                         classNames={{
                             inputWrapper: "bg-white/5 border-white/10 hover:border-white/20 focus-within:border-primary/50 h-12",
                             label: "text-gray-400 font-medium",
@@ -351,7 +408,7 @@ export default function OnboardingPage() {
                             <Button
                                 color="primary"
                                 onPress={nextStep}
-                                isDisabled={currentStep === 2 && !name.trim()}
+                                isDisabled={(currentStep === 2 && (!name.trim() || !nameAvailable || isCheckingName)) || (currentStep === 2 && name.length < 3)}
                                 className="font-bold"
                             >
                                 Próximo →
@@ -363,7 +420,7 @@ export default function OnboardingPage() {
                                 className="font-bold text-black shadow-lg shadow-primary/20"
                                 isLoading={isLoading}
                                 onPress={handleSubmit}
-                                isDisabled={!name.trim()}
+                                isDisabled={!name.trim() || !nameAvailable || isCheckingName || name.length < 3}
                             >
                                 🎮 Começar Jogo
                             </Button>

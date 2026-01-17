@@ -1,23 +1,25 @@
 'use client'
 
-import { useGame } from "@/context/GameContext";
 import { Button, Input, Tooltip } from "@heroui/react";
 
-export function ActionQuantitySelector() {
-    const { actionCount, setActionCount } = useGame();
+interface ActionQuantitySelectorProps {
+    value: number;
+    onChange: (value: number) => void;
+}
 
+export function ActionQuantitySelector({ value, onChange }: ActionQuantitySelectorProps) {
     const handleIncrement = () => {
-        setActionCount(Math.min(actionCount + 1, 100));
+        onChange(Math.min(value + 1, 100));
     };
 
     const handleDecrement = () => {
-        setActionCount(Math.max(actionCount - 1, 1));
+        onChange(Math.max(value - 1, 1));
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseInt(e.target.value);
-        if (!isNaN(value)) {
-            setActionCount(Math.min(Math.max(value, 1), 100));
+        const newValue = parseInt(e.target.value);
+        if (!isNaN(newValue)) {
+            onChange(Math.min(Math.max(newValue, 1), 100));
         }
     };
 
@@ -40,7 +42,7 @@ export function ActionQuantitySelector() {
                     </Button>
                     <Input
                         type="number"
-                        value={actionCount.toString()}
+                        value={value.toString()}
                         onChange={handleChange}
                         className="w-12 text-center"
                         variant="flat"

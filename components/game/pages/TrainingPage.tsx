@@ -7,9 +7,11 @@ import { api, GameAction, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
 
 export function TrainingPage() {
-    const { user } = useGame();
+    const { user, actionCounts, setActionCountForCategory } = useGame();
     const [actions, setActions] = useState<GameAction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const actionCount = actionCounts['training'] || 1;
+    const setActionCount = (count: number) => setActionCountForCategory('training', count);
 
     useEffect(() => {
         const fetchActions = async () => {
@@ -32,12 +34,12 @@ export function TrainingPage() {
                         No pain, no gain. Fique monstrão (de conhecimento).
                     </p>
                 </div>
-                <ActionQuantitySelector />
+                <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
             </div>
 
             <div className="grid grid-cols-1 gap-4 mt-6">
                 {actions.map(action => (
-                    <ActionCard key={action.id} action={action} />
+                    <ActionCard key={action.id} action={action} actionCount={actionCount} />
                 ))}
                 {!isLoading && actions.length === 0 && (
                     <p className="text-gray-500 font-mono italic">Nenhum treinamento disponível no momento.</p>

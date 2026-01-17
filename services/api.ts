@@ -104,7 +104,7 @@ export const api = {
     },
 
     getActionsByType: async (type: GameActionType): Promise<GameAction[]> => {
-        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/dirty-code';
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8080/dirty-code';
         try {
             const token = await api.getToken();
             if (!token) return [];
@@ -136,7 +136,7 @@ export const api = {
             money?: number;
         }
     }> => {
-        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/dirty-code';
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8080/dirty-code';
         try {
             const token = await api.getToken();
 
@@ -173,7 +173,7 @@ export const api = {
     },
 
     getRanking: async (): Promise<Avatar[]> => {
-        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/dirty-code';
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8080/dirty-code';
         try {
             const token = await api.getToken();
 
@@ -198,5 +198,10 @@ export const api = {
     buyFreedom: async (): Promise<{ success: boolean; avatar: Avatar; message?: string }> => {
         const { buyFreedomAction } = await import('@/app/actions/avatar');
         return await buyFreedomAction();
+    },
+
+    checkNameAvailability: async (name: string): Promise<{ available: boolean }> => {
+        const { checkAvatarNameAction } = await import('@/app/actions/avatar');
+        return await checkAvatarNameAction(name);
     }
 };

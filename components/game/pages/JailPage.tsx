@@ -1,10 +1,9 @@
 'use client'
 
-import { ActionQuantitySelector } from "@/components/game/ActionQuantitySelector";
 import { useEffect, useState } from "react";
 import { api } from "@/services/api";
 import { useGame } from "@/context/GameContext";
-import Image from "next/image";
+import { getNoMoneyMessage, isNoMoneyError } from "@/lib/game-utils";
 
 export function JailPage() {
     const [isProcessing, setIsProcessing] = useState(false);
@@ -78,7 +77,12 @@ export function JailPage() {
 
             window.location.href = '/game';
         } catch (error: any) {
-            alert(error.message || 'Erro ao comprar liberdade');
+            let message = error.message || 'Erro ao comprar liberdade';
+            
+            if (isNoMoneyError(message)) {
+                message = await getNoMoneyMessage();
+            }
+            alert(message);
         } finally {
             setIsProcessing(false);
         }
@@ -107,13 +111,12 @@ export function JailPage() {
                         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
                             {/* Jail Image */}
                             <div className="flex-shrink-0">
-                                <Image
-                                    src="/jail_scene.png"
+                                <img
+                                    src={`/jail_scene.png?v=${new Date().getTime()}`}
                                     alt="Jail Scene"
                                     width={400}
                                     height={300}
                                     className="rounded-lg opacity-90 border border-orange-500/30"
-                                    priority={false}
                                 />
                             </div>
 
@@ -177,7 +180,9 @@ export function JailPage() {
                                             ) : (
                                                 <>
                                                     <span>💰</span>
-                                                    Subornar Guarda ({freedomCost.toFixed(2)} R$)
+                                                    <span className={!canAffordFreedom ? 'text-red-500 font-bold' : ''}>
+                                                        Subornar Guarda ({freedomCost.toFixed(2)} R$)
+                                                    </span>
                                                 </>
                                             )}
                                         </button>
@@ -219,19 +224,17 @@ export function JailPage() {
                         Você está livre. Evite ações ilegais ou voltará aqui.
                     </p>
                 </div>
-                <ActionQuantitySelector />
             </div>
 
             <div className="grid grid-cols-1 gap-4 mt-6">
                 {/* Normal jail page - show freedom image */}
                 <div className="bg-black/30 border border-orange-500/50 rounded-xl p-8 text-center">
-                    <Image
-                        src="/freedom.png"
+                    <img
+                        src={`/freedom.png?v=${new Date().getTime()}`}
                         alt="Freedom"
                         width={400}
                         height={300}
                         className="mx-auto rounded-lg opacity-80 mb-6"
-                        priority={false}
                     />
                     <h2 className="text-green-400 text-2xl font-bold mb-2">
                         Você está livre!

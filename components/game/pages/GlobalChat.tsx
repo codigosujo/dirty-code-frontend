@@ -2,48 +2,16 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button, Input, ScrollShadow } from "@heroui/react";
-import { chatService, ChatMessage } from "@/services/chatService";
+import { chatService } from "@/services/chatService";
 import { useGame } from "@/context/GameContext";
 
 export function GlobalChat() {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [isSending, setIsSending] = useState(false);
-    const [lastSentTime, setLastSentTime] = useState<number>(0);
+    const [_lastSentTime, setLastSentTime] = useState<number>(0);
     const [cooldown, setCooldown] = useState(0);
-    const [token, setToken] = useState<string | null>(null);
-    const { user } = useGame();
+    const { user, chatMessages: messages, chatToken: token } = useGame();
     const scrollRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const fetchToken = async () => {
-            try {
-                const response = await fetch('/api/auth/token');
-                if (response.ok) {
-                    const data = await response.json();
-                    setToken(data.token);
-                    chatService.connect((msg) => {
-                        setMessages((prev) => {
-                            if (Array.isArray(msg)) {
-                                const newMessages = msg.filter(m => !prev.some(p => p.message === m.message && p.avatarName === m.avatarName));
-                                return [...prev, ...newMessages];
-                            }
-                            if (prev.some(m => m.message === msg.message && m.avatarName === msg.avatarName)) return prev;
-                            return [...prev, msg];
-                        });
-                    }, data.token);
-                }
-            } catch (error) {
-                console.error("Erro ao buscar token", error);
-            }
-        };
-
-        fetchToken();
-
-        return () => {
-            chatService.disconnect();
-        };
-    }, []);
 
     useEffect(() => {
         if (scrollRef.current) {
