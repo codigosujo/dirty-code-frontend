@@ -1,13 +1,27 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { api } from "@/services/api";
+import { api, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
 import { getNoMoneyMessage, isNoMoneyError } from "@/lib/game-utils";
 
 export function JailPage() {
+    const { user, refreshUser, cachedActions, fetchActions } = useGame();
+    const actions = cachedActions[GameActionType.JAIL] || [];
+    const [_isLoading, setIsLoading] = useState(actions.length === 0);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { user, refreshUser } = useGame();
+    
+    useEffect(() => {
+        const loadActions = async () => {
+            const isInitialLoad = actions.length === 0;
+            if (isInitialLoad) setIsLoading(true);
+            
+            await fetchActions(GameActionType.JAIL, !isInitialLoad);
+            
+            if (isInitialLoad) setIsLoading(false);
+        };
+        loadActions();
+    }, []);
 
     // Check if user is in jail timeout
     const avatar = user?.activeAvatar;

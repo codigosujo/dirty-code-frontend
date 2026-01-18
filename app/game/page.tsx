@@ -129,6 +129,12 @@ export default function GameDashboard() {
 
     // Override setActiveTab to prevent navigation when in timeout
     const handleTabChange = (tabId: string) => {
+        // Helldit is always allowed
+        if (tabId === 'Helldit') {
+            setActiveTab(tabId);
+            return;
+        }
+
         // If user is in timeout and hasn't expired, only allow the current timeout tab
         if (isInTimeout && !isTimeoutExpired) {
             // Only allow navigation to the current timeout page
@@ -159,6 +165,9 @@ export default function GameDashboard() {
                     lockedItems={isInTimeout && !isTimeoutExpired
                         ? MENU_ITEMS
                             .filter(item => {
+                                // Helldit is never locked
+                                if (item.id === 'Helldit') return false;
+                                
                                 // Only allow the current timeout page
                                 if (timeoutType === 'HOSPITAL') {
                                     return item.id !== 'hospital'; // Block everything except hospital

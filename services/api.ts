@@ -29,7 +29,8 @@ export enum GameActionType {
     WORK = 'work',
     TRAIN = 'training',
     MARKET = 'market',
-    HOSPITAL = 'hospital'
+    HOSPITAL = 'hospital',
+    JAIL = 'jail'
 }
 
 export interface GameAction {

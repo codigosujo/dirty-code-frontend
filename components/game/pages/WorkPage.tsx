@@ -3,26 +3,29 @@
 import { ActionCard } from "@/components/game/ActionCard";
 import { ActionQuantitySelector } from "@/components/game/ActionQuantitySelector";
 import { useEffect, useState } from "react";
-import { api, GameAction, GameActionType } from "@/services/api";
+import { GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
 
 export function WorkPage() {
-    const { user, actionCounts, setActionCountForCategory } = useGame();
-    const [actions, setActions] = useState<GameAction[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions} = useGame();
+    const actions = cachedActions[GameActionType.WORK] || [];
+    const [isLoading, setIsLoading] = useState(actions.length === 0);
     const actionCount = actionCounts['work'] || 1;
     const setActionCount = (count: number) => setActionCountForCategory('work', count);
 
     useEffect(() => {
-        const fetchActions = async () => {
+        const loadActions = async () => {
             if (!user?.activeAvatar) return;
-
-            setIsLoading(true);
-            const data = await api.getActionsByType(GameActionType.WORK);
-            setActions(data);
-            setIsLoading(false);
+            
+            const isInitialLoad = actions.length === 0;
+            if (isInitialLoad) setIsLoading(true);
+            
+            await fetchActions(GameActionType.WORK, !isInitialLoad);
+            
+            if (isInitialLoad) setIsLoading(false);
         };
-        fetchActions();
+        
+        loadActions();
     }, [user?.activeAvatar?.strength, user?.activeAvatar?.intelligence, user?.activeAvatar?.charisma, user?.activeAvatar?.stealth]);
 
     return (

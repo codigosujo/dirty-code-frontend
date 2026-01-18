@@ -3,25 +3,28 @@
 import { ActionCard } from "@/components/game/ActionCard";
 import { ActionQuantitySelector } from "@/components/game/ActionQuantitySelector";
 import { useEffect, useState } from "react";
-import { api, GameAction, GameActionType } from "@/services/api";
+import { api, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
 import { getNoMoneyMessage, isNoMoneyError } from "@/lib/game-utils";
 
 export function HospitalPage() {
-    const [actions, setActions] = useState<GameAction[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { user, refreshUser, actionCounts, setActionCountForCategory, cachedActions, fetchActions } = useGame();
+    const actions = cachedActions[GameActionType.HOSPITAL] || [];
+    const [isLoading, setIsLoading] = useState(actions.length === 0);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { user, refreshUser, actionCounts, setActionCountForCategory } = useGame();
     const actionCount = actionCounts['hospital'] || 1;
     const setActionCount = (count: number) => setActionCountForCategory('hospital', count);
 
     useEffect(() => {
-        const fetchActions = async () => {
-            const data = await api.getActionsByType(GameActionType.HOSPITAL);
-            setActions(data);
-            setIsLoading(false);
+        const loadActions = async () => {
+            const isInitialLoad = actions.length === 0;
+            if (isInitialLoad) setIsLoading(true);
+            
+            await fetchActions(GameActionType.HOSPITAL, !isInitialLoad);
+            
+            if (isInitialLoad) setIsLoading(false);
         };
-        fetchActions();
+        loadActions();
     }, []);
 
     // Check if user is in hospital timeout

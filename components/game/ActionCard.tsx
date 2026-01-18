@@ -40,7 +40,6 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
         const staminaNeededPerAction = Math.abs(action.stamina);
         const currentStamina = user?.activeAvatar?.stamina ?? 0;
         
-        // Se a ação consome stamina e o usuário não tem nada
         if (action.stamina < 0 && currentStamina < staminaNeededPerAction) {
             const message = await getNoEnergyMessage();
 
@@ -71,23 +70,6 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
             const result = await performAction(action, actionCount);
             
             let message = result.message;
-            if (result.timesExecuted && result.timesExecuted < actionCount) {
-                const staminaNeededPerAction = Math.abs(action.stamina);
-                const moneyNeededPerAction = action.money < 0 ? Math.abs(action.money) : 0;
-                
-                const currentStamina = user?.activeAvatar?.stamina ?? 0;
-                const currentMoney = user?.activeAvatar?.money ?? 0;
-
-                let reason = "recursos insuficientes";
-                if (action.stamina < 0 && currentStamina < staminaNeededPerAction) {
-                    reason = "Stamina insuficiente";
-                } else if (moneyNeededPerAction > 0 && currentMoney < moneyNeededPerAction) {
-                    reason = "Dinheiro insuficiente";
-                }
-
-                message = `Executado ${result.timesExecuted}x. ${message}\n(${reason} para ${actionCount}x)`;
-            }
-
             setFeedback({ 
                 message, 
                 type: result.success ? 'success' : 'failure',

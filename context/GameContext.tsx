@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { api, User } from '../services/api';
+import { api, GameAction, GameActionType, User } from '@/services/api';
 import { useRouter } from 'next/navigation';
 import { chatService, ChatMessage } from '@/services/chatService';
 
@@ -29,6 +29,8 @@ interface GameContextType {
     setOnTimeoutRedirect: (callback: () => void) => void;
     chatMessages: ChatMessage[];
     chatToken: string | null;
+    cachedActions: Record<GameActionType, GameAction[]>;
+    fetchActions: (type: GameActionType, silent?: boolean) => Promise<void>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -40,7 +42,38 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [timeoutRedirectCallback, setTimeoutRedirectCallback] = useState<(() => void) | undefined>(undefined);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [chatToken, setChatToken] = useState<string | null>(null);
+    const [cachedActions, setCachedActions] = useState<Record<GameActionType, GameAction[]>>({} as any);
     const router = useRouter();
+
+    const fetchActions = async (type: GameActionType, silent: boolean = false) => {
+        if (!user?.activeAvatar) return;
+
+        // Se já temos dados e não é um fetch silencioso, 
+        // poderíamos pular o loading se quisermos navegação instantânea.
+        // Mas o componente já trata isso usando o comprimento do array.
+        if (!silent) setIsLoading(true);
+        try {
+            const data = await api.getActionsByType(type);
+            setCachedActions(prev => ({
+                ...prev,
+                [type]: data
+            }));
+        } catch (error) {
+            console.error(`Erro ao buscar ações do tipo ${type}:`, error);
+        } finally {
+            if (!silent) setIsLoading(false);
+        }
+    };
+
+    const updateAllActions = async () => {
+        if (!user?.activeAvatar) return;
+        
+        // Atualiza apenas os tipos que já foram carregados pelo menos uma vez
+        const activeTypes = Object.keys(cachedActions) as GameActionType[];
+        for (const type of activeTypes) {
+            await fetchActions(type, true);
+        }
+    };
 
     useEffect(() => {
         if (!user) return;
@@ -207,6 +240,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 }
             }
 
+            // Atualiza ações em background após realizar uma ação (ex: novos jobs podem ter surgido)
+            updateAllActions();
+
             router.refresh();
             return {
                 success: result.success,
@@ -254,7 +290,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
             onTimeoutRedirect: timeoutRedirectCallback,
             setOnTimeoutRedirect,
             chatMessages,
-            chatToken
+            chatToken,
+            cachedActions,
+            fetchActions
         }}>
             {children}
         </GameContext.Provider>

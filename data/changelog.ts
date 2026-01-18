@@ -9,13 +9,15 @@ export const CHANGELOG_DATA: ChangelogItem[] = [
     {
         version: "0.2.1",
         title: "Experiência Aprimorada: Batch Actions, Helldit Persistente e Nova UI",
-        date: "18/01/2026",
+        date: "17/01/2026",
         items: [
+            "Cache de abas: Implementação do sistema de cache no GameContext para tornar a navegação entre as páginas de ações instantânea e as atualizações transparentes.",
             "Batch Actions: Suporte a execução parcial de ações. Se a stamina ou o dinheiro acabar durante um lote, o jogo executa até o limite disponível.",
             "Batch Actions: Isolamento do seletor de quantidade por aba/categoria, mantendo o valor ao navegar entre elas.",
             "Batch Actions: Removido seletor de quantidade na página de Prisão por não haver ações executáveis no local.",
             "Validação de Dinheiro: Agora as ações verificam se você tem saldo antes de tentar executá-las.",
             "Feedback de Erro: Melhorias nas mensagens de erro ao comprar liberdade no hospital e prisão.",
+            "Helldit: Helldit agora pode ser utilizado mesmo quando o usuário estiver preso ou no hospital.",
             "Helldit: Conexão persistente para mensagens instantâneas sem tempo de carregamento ao trocar de abas.",
             "UI/UX: Ajustado layout dos cards de menu para exibir ícones ao lado dos títulos, melhorando o aproveitamento de espaço.",
             "Onboarding: Adicionada validação de nome de usuário com mensagens satíricas caso o nome já esteja em uso.",
