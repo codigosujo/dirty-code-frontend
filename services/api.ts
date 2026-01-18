@@ -18,6 +18,8 @@ export interface Avatar {
     work: number;
     focus: 'work' | 'hacking' | 'both';
     active: boolean;
+    maxLife?: number;
+    maxStamina?: number;
     burnout: number;
     story?: string;
     timeout?: string; // ISO datetime string when timeout expires
@@ -41,6 +43,8 @@ export interface GameAction {
     stamina: number;
     money: number;
     moneyVariation: number;
+    hp?: number;
+    hpVariation?: number;
     xp: number;
     xpVariation: number;
     requiredStrength?: number;
@@ -50,6 +54,9 @@ export interface GameAction {
     textFile: string;
     actionImage: string;
     failureChance: number;
+    canBeArrested?: boolean;
+    lostHpFailure?: number;
+    recommendedMaxLevel?: number;
 }
 
 export interface User {

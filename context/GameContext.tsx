@@ -31,6 +31,8 @@ interface GameContextType {
     chatToken: string | null;
     cachedActions: Record<GameActionType, GameAction[]>;
     fetchActions: (type: GameActionType, silent?: boolean) => Promise<void>;
+    avatarCache: Record<string, any>;
+    getAvatarData: (avatarId: string, forceRefresh?: boolean) => Promise<any>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -43,7 +45,37 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [chatToken, setChatToken] = useState<string | null>(null);
     const [cachedActions, setCachedActions] = useState<Record<GameActionType, GameAction[]>>({} as any);
+    const [avatarCache, setAvatarCache] = useState<Record<string, any>>({});
     const router = useRouter();
+
+    const getAvatarData = async (avatarId: string, forceRefresh: boolean = false) => {
+        // Se já existe no cache e não for um forceRefresh, retornamos
+        const cached = avatarCache[avatarId];
+        
+        const fetchAndCache = async () => {
+            try {
+                const response = await fetch(`/api/avatar/${avatarId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setAvatarCache(prev => ({ ...prev, [avatarId]: data }));
+                    return data;
+                }
+            } catch (error) {
+                console.error("Erro ao buscar dados do avatar:", error);
+            }
+            return null;
+        };
+
+        if (cached) {
+            if (forceRefresh) {
+                // Atualização transparente em background
+                fetchAndCache();
+            }
+            return cached;
+        }
+
+        return await fetchAndCache();
+    };
 
     const fetchActions = async (type: GameActionType, silent: boolean = false) => {
         if (!user?.activeAvatar) return;
@@ -292,7 +324,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
             chatMessages,
             chatToken,
             cachedActions,
-            fetchActions
+            fetchActions,
+            avatarCache,
+            getAvatarData
         }}>
             {children}
         </GameContext.Provider>

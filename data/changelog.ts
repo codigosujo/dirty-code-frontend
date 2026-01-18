@@ -7,6 +7,31 @@ export interface ChangelogItem {
 
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
+        version: "0.2.2",
+        title: "Social & Risco: Evolução do Helldit e Refinamento de UI",
+        date: "18/01/2026",
+        items: [
+            "Helldit: Adicionado seletor de emojis para maior expressividade nas comunicações.",
+            "Helldit: Suporte completo para interpretação de caracteres Unicode (emojis) nas mensagens.",
+            "Helldit: Corrigida conversão de '<3' para emoji de coração.",
+            "Helldit: Divisores de data automáticos para melhor organização das mensagens.",
+            "Helldit: Formatação amigável de datas (Hoje, Ontem).",
+            "API de Avatares: Novo endpoint para consulta de dados públicos.",
+            "Correção de Bug: Resolvido loop de redirecionamento no onboarding.",
+            "Estabilização: Melhorias na sincronização de estado e cookies.",
+            "Perfis em Tooltip: Visualize informações dos hackers apenas passando o mouse no chat.",
+            "Sistema de Risco: Ações com mais de 50% de chance de falha agora possuem punições triplicadas (HP e Tempo de Prisão).",
+            "UI: Adicionado feedback visual (alerta 'Punição 3x') e tooltips para ações de alto risco.",
+            "UI: Cards de ação agora exibem explicitamente as punições em caso de falha (HP e Tempo de Prisão).",
+            "UI: Adicionada exibição de custos/ganhos de HP direto no card (ex: cafés do mercadinho).",
+            "UI: Valores que possuem variação randômica agora exibem o símbolo '≈' para indicar que são aproximados.",
+            "Backend: Implementada validação centralizada de HP. Qualquer ação que resulte em vida <= 0 envia o avatar automaticamente para o hospital.",
+            "Novas Ações: Adicionada a ação 'Suporte do Banco (Áudio)' (Hacking).",
+            "Novas Ações: Adicionada a ação 'Sultão da Turquia' (Hacking).",
+            "Novas Ações: Adicionada a ação 'Pitbrad do Caralivro' (Hacking).",
+        ]
+    },
+    {
         version: "0.2.1",
         title: "Experiência Aprimorada: Batch Actions, Helldit Persistente e Nova UI",
         date: "17/01/2026",

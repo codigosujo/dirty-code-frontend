@@ -2,10 +2,12 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 export interface ChatMessage {
+    avatarId: string;
     avatarName: string;
     message: string;
     id?: string;
     timestamp?: string;
+    fullDate?: string;
 }
 
 export type MessageCallback = (message: ChatMessage | ChatMessage[]) => void;

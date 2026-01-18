@@ -95,10 +95,17 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
     const stamina = action.stamina * actionCount;
     const moneyReward = action.money * actionCount;
     const xpReward = action.xp * actionCount;
+    const hpReward = (action.hp ?? 0) * actionCount;
 
-    const formatValue = (value: number) => {
+    const hasMoneyVariation = action.moneyVariation !== undefined && action.moneyVariation > 0;
+    const hasXpVariation = action.xpVariation !== undefined && action.xpVariation > 0;
+    const hasHpVariation = action.hpVariation !== undefined && action.hpVariation > 0;
+    const hasLostHpFailureVariation = action.lostHpFailureVariation !== undefined && action.lostHpFailureVariation > 0;
+
+    const formatValue = (value: number, hasVariation?: boolean) => {
         const sign = value > 0 ? '+' : '';
-        return `${sign}${value}`;
+        const approx = hasVariation ? '≈' : '';
+        return `${approx}${sign}${value}`;
     };
 
 
@@ -149,19 +156,19 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                                     {feedback.variations.experience !== 0 && feedback.variations.experience !== undefined && (
                                         <div className={`flex items-center gap-1.5 ${feedback.variations.experience < 0 ? 'text-red-500' : 'text-green-500'}`}>
                                             <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                                            <span>{formatValue(feedback.variations.experience)} Respeito</span>
+                                            <span>{formatValue(feedback.variations.experience, hasXpVariation)} Respeito</span>
                                         </div>
                                     )}
                                     {feedback.variations.money !== 0 && feedback.variations.money !== undefined && (
                                         <div className={`flex items-center gap-1.5 ${feedback.variations.money < 0 ? 'text-red-500' : 'text-green-500'}`}>
                                             <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                            <span>{feedback.variations.money > 0 ? '+' : ''}{(Number(feedback.variations.money)).toFixed(2)} R$</span>
+                                            <span>{hasMoneyVariation ? '≈' : ''}{feedback.variations.money > 0 ? '+' : ''}{(Number(feedback.variations.money)).toFixed(2)} R$</span>
                                         </div>
                                     )}
                                     {feedback.variations.life !== 0 && feedback.variations.life !== undefined && (
                                         <div className={`flex items-center gap-1.5 ${feedback.variations.life < 0 ? 'text-red-500' : 'text-green-500'}`}>
                                             <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                            <span>{formatValue(feedback.variations.life)} HP</span>
+                                            <span>{formatValue(feedback.variations.life, hasHpVariation)} HP</span>
                                         </div>
                                     )}
                                 </div>
@@ -209,7 +216,31 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                         {xpReward !== undefined && xpReward !== 0 && (
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                                <span>{formatValue(xpReward)} Respeito</span>
+                                <span>{formatValue(xpReward, hasXpVariation)} Respeito</span>
+                            </div>
+                        )}
+                        {hpReward !== 0 && (
+                            <div className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span className={hpReward < 0 && (user?.activeAvatar?.life ?? 0) < Math.abs(hpReward) ? 'text-red-500 font-bold' : ''}>
+                                    {formatValue(hpReward, hasHpVariation)} HP
+                                </span>
+                            </div>
+                        )}
+                        {action.lostHpFailure !== undefined && action.lostHpFailure !== 0 && (
+                            <div className="flex items-center gap-1.5 text-red-400/80">
+                                <span className="w-2 h-2 rounded-full bg-red-600"></span>
+                                <span>
+                                    {hasLostHpFailureVariation ? '≈' : ''}-{riskPercentage > 50 ? action.lostHpFailure * 3 : action.lostHpFailure} HP (falha)
+                                </span>
+                            </div>
+                        )}
+                        {action.canBeArrested && (
+                            <div className="flex items-center gap-1.5 text-orange-400/80">
+                                <span className="w-2 h-2 rounded-full bg-orange-600"></span>
+                                <span>
+                                    {riskPercentage > 50 ? '15' : '5'}m Cadeia (falha)
+                                </span>
                             </div>
                         )}
                     </div>
@@ -236,17 +267,28 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                    <Chip
-                        size="sm"
-                        variant="flat"
-                        color={riskPercentage <= 10 ? "success" : riskPercentage <= 25 ? "warning" : "danger"}
-                        className="font-bold font-mono"
+                    <Tooltip
+                        content={riskPercentage > 50 ? "Risco Crítico: Punições triplicadas (HP e Cadeia)!" : "Chance de falha"}
+                        isDisabled={riskPercentage <= 50}
+                        color="danger"
                     >
-                        RISCO: {riskPercentage}%
-                    </Chip>
+                        <Chip
+                            size="sm"
+                            variant="flat"
+                            color={riskPercentage <= 10 ? "success" : riskPercentage <= 25 ? "warning" : "danger"}
+                            className={`font-bold font-mono ${riskPercentage > 50 ? "animate-pulse border border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" : ""}`}
+                        >
+                            RISCO: {riskPercentage}%
+                        </Chip>
+                    </Tooltip>
+                    {riskPercentage > 50 && (
+                        <div className="text-[10px] text-red-500 font-bold uppercase tracking-tighter animate-bounce">
+                            Punição 3x
+                        </div>
+                    )}
                     {moneyReward !== undefined && moneyReward !== 0 && (
                         <div className={`text-2xl font-bold ${moneyReward > 0 ? 'text-green-500' : (user?.activeAvatar?.money ?? 0) < Math.abs(moneyReward) ? 'text-red-600' : 'text-red-500'}`}>
-                            {formatValue(moneyReward)} R$
+                            {formatValue(moneyReward, hasMoneyVariation)} R$
                         </div>
                     )}
                 </div>

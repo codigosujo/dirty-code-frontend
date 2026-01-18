@@ -32,9 +32,10 @@ export default function OnboardingPage() {
     // If user already has an avatar, redirect to game
     useEffect(() => {
         if (user?.activeAvatar) {
-            router.push('/game');
+            console.log("Redirecting to game because user already has an avatar");
+            router.replace('/game');
         }
-    }, [user, router]);
+    }, [user?.activeAvatar, router]);
 
     // Set initial data
     useEffect(() => {
@@ -117,11 +118,10 @@ export default function OnboardingPage() {
             const newAvatar: Avatar = await api.createAvatar(payload);
             refreshUser({ activeAvatar: newAvatar });
 
-            // Small delay to ensure context update
+            // Pequeno delay para garantir atualização do contexto e cookies
             setTimeout(() => {
-                router.push('/game');
-                router.refresh();
-            }, 100);
+                router.replace('/game');
+            }, 300);
         } catch (error) {
             console.error(error);
             alert("Falha ao criar personagem. Por favor, tente novamente.");

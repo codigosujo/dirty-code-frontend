@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@heroui/progress": "2.2.18",
-    "@heroui/react": "^2.7.11",
+    "@heroui/react": "2.6.11",
     "@heroui/theme": "2.4.17",
     "@stomp/stompjs": "^7.2.1",
+    "emoji-js": "^3.9.0",
+    "emoji-picker-react": "^4.16.1",
     "firebase": "^12.7.0",
     "framer-motion": "^12.23.26",
     "js-cookie": "^3.0.5",
@@ -22,6 +24,7 @@
     "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
+    "@types/emoji-js": "^3.5.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",

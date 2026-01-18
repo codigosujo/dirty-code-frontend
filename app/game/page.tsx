@@ -91,9 +91,10 @@ export default function GameDashboard() {
     // Redirect to onboarding if user doesn't have an avatar
     useEffect(() => {
         if (user && !user.activeAvatar) {
-            router.push('/game/onboarding');
+            console.log("Redirecting to onboarding because user has no avatar");
+            router.replace('/game/onboarding');
         }
-    }, [user, router]);
+    }, [user?.activeAvatar, router]);
 
     // Check if user is in hospital/jail timeout
     const isInTimeout = user?.activeAvatar?.timeoutType && user?.activeAvatar?.timeout;

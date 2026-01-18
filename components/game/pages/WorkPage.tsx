@@ -2,9 +2,10 @@
 
 import { ActionCard } from "@/components/game/ActionCard";
 import { ActionQuantitySelector } from "@/components/game/ActionQuantitySelector";
-import { useEffect, useState } from "react";
-import { GameActionType } from "@/services/api";
+import { useEffect, useState, useMemo } from "react";
+import { GameAction, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
+import { Accordion, AccordionItem } from "@heroui/react";
 
 export function WorkPage() {
     const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions} = useGame();
@@ -12,6 +13,43 @@ export function WorkPage() {
     const [isLoading, setIsLoading] = useState(actions.length === 0);
     const actionCount = actionCounts['work'] || 1;
     const setActionCount = (count: number) => setActionCountForCategory('work', count);
+
+    const userLevel = user?.activeAvatar?.level || 1;
+
+    // Agrupar ações por recommendedMaxLevel
+    const groupedActions = useMemo(() => {
+        const groups: Record<number, GameAction[]> = {};
+        actions.forEach(action => {
+            const level = action.recommendedMaxLevel || 0; // 0 para sem level recomendado
+            if (!groups[level]) groups[level] = [];
+            groups[level].push(action);
+        });
+        
+        // Retornar lista ordenada de níveis
+        return Object.keys(groups)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .map(level => ({
+                level,
+                actions: groups[level]
+            }));
+    }, [actions]);
+
+    // Encontrar o nível que deve estar aberto (nível do usuário ou o menor nível acima dele)
+    const defaultExpandedKey = useMemo(() => {
+        if (groupedActions.length === 0) return undefined;
+        
+        // Tenta encontrar o grupo exato do nível do usuário
+        const exactMatch = groupedActions.find(g => g.level === userLevel);
+        if (exactMatch) return exactMatch.level.toString();
+
+        // Encontra o grupo com level > userLevel (primeiro nível recomendado após o atual)
+        const nextLevel = groupedActions.find(g => g.level > userLevel);
+        if (nextLevel) return nextLevel.level.toString();
+
+        // Se o usuário já passou de todos os níveis recomendados, abre o último
+        return groupedActions[groupedActions.length - 1].level.toString();
+    }, [groupedActions, userLevel]);
 
     useEffect(() => {
         const loadActions = async () => {
@@ -39,12 +77,50 @@ export function WorkPage() {
                 </div>
                 <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
             </div>
-
-            <div className="grid grid-cols-1 gap-4 mt-6">
-                {actions.map(action => (
-                    <ActionCard key={action.id} action={action} actionCount={actionCount} />
-                ))}
-                {!isLoading && actions.length === 0 && (
+            
+            <div className="mt-6">
+                {!isLoading && groupedActions.length > 0 ? (
+                    <Accordion 
+                        variant="splitted" 
+                        selectionMode="multiple" 
+                        defaultExpandedKeys={defaultExpandedKey ? [defaultExpandedKey] : []}
+                    >
+                        {groupedActions.map((group) => (
+                            <AccordionItem
+                                key={group.level.toString()}
+                                aria-label={`Nível Recomendado ${group.level}`}
+                                title={
+                                    <div className="flex items-center justify-between pr-4">
+                                        <span className="text-white font-bold uppercase tracking-wider">
+                                            {group.level === 0 ? "Geral" : `Atividades recomendadas até o nível ${group.level}`}
+                                        </span>
+                                        {group.level > 0 && group.level < userLevel && (
+                                            <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded border border-green-500/30">
+                                                Nível Superado
+                                            </span>
+                                        )}
+                                        {group.level === userLevel && (
+                                            <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded border border-primary/30">
+                                                Nível Atual
+                                            </span>
+                                        )}
+                                    </div>
+                                }
+                                classNames={{
+                                    base: "bg-zinc-900/50 border border-white/5 mb-2",
+                                    title: "text-sm",
+                                    content: "px-2 pb-4"
+                                }}
+                            >
+                                <div className="grid grid-cols-1 gap-4">
+                                    {group.actions.map(action => (
+                                        <ActionCard key={action.id} action={action} actionCount={actionCount} />
+                                    ))}
+                                </div>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                ) : !isLoading && (
                     <p className="text-gray-500 font-mono italic">Nenhum trabalho disponível no momento.</p>
                 )}
             </div>
