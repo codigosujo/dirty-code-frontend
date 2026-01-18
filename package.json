@@ -9,9 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@heroui/progress": "2.2.18",
     "@heroui/react": "2.6.11",
-    "@heroui/theme": "2.4.17",
     "@stomp/stompjs": "^7.2.1",
     "emoji-js": "^3.9.0",
     "emoji-picker-react": "^4.16.1",
