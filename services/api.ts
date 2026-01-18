@@ -56,6 +56,7 @@ export interface GameAction {
     failureChance: number;
     canBeArrested?: boolean;
     lostHpFailure?: number;
+    lostHpFailureVariation?: number;
     recommendedMaxLevel?: number;
 }
 
