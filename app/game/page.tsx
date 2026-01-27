@@ -98,6 +98,11 @@ export default function GameDashboard() {
 
     const content = MENU_ITEMS.find(item => item.id === activeTab);
 
+    // Scroll to top when tab changes
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [activeTab]);
+
     // Redirect to onboarding if user doesn't have an avatar
     useEffect(() => {
         if (user && !user.activeAvatar) {
@@ -164,38 +169,38 @@ export default function GameDashboard() {
 
     return (
         <div className="flex flex-col gap-2 min-h-screen pb-10">
-            <div className="container mx-auto lg:px-8 space-y-4 md:space-y-8">
-                {/* 1. Profile Card - Fixed at the top below Topbar */}
-                <div className="sticky top-16 z-30 py-2 md:py-4 bg-black/80 backdrop-blur-md -mx-2 px-2 md:mx-0 md:px-0">
+            <div className="container mx-auto lg:px-8 space-y-2 md:space-y-3">
+                {/* 1. Fixed Header Section (Profile + Menu) */}
+                <div className="sticky top-16 z-30 pt-1 md:pt-2 pb-0 bg-black/80 backdrop-blur-md -mx-2 px-2 md:mx-0 md:px-0 flex flex-col gap-2 md:gap-3">
                     <UserProfileCard />
+                    
+                    {/* 2. Game Menu Grid */}
+                    <GameMenu
+                        items={MENU_ITEMS}
+                        activeId={activeTab}
+                        onSelect={handleTabChange}
+                        lockedItems={isInTimeout && !isTimeoutExpired
+                            ? MENU_ITEMS
+                                .filter(item => {
+                                    // Helldit is never locked
+                                    if (item.id === 'Helldit') return false;
+                                    
+                                    // Only allow the current timeout page
+                                    if (timeoutType === 'HOSPITAL') {
+                                        return item.id !== 'hospital'; // Block everything except hospital
+                                    } else if (timeoutType === 'JAIL') {
+                                        return item.id !== 'jail'; // Block everything except jail
+                                    }
+                                    return true; // Block by default
+                                })
+                                .map(item => item.id)
+                            : []
+                        }
+                    />
                 </div>
 
-                {/* 2. Game Menu Grid */}
-                <GameMenu
-                    items={MENU_ITEMS}
-                    activeId={activeTab}
-                    onSelect={handleTabChange}
-                    lockedItems={isInTimeout && !isTimeoutExpired
-                        ? MENU_ITEMS
-                            .filter(item => {
-                                // Helldit is never locked
-                                if (item.id === 'Helldit') return false;
-                                
-                                // Only allow the current timeout page
-                                if (timeoutType === 'HOSPITAL') {
-                                    return item.id !== 'hospital'; // Block everything except hospital
-                                } else if (timeoutType === 'JAIL') {
-                                    return item.id !== 'jail'; // Block everything except jail
-                                }
-                                return true; // Block by default
-                            })
-                            .map(item => item.id)
-                        : []
-                    }
-                />
-
                 {/* 3. Dynamic Content Area */}
-                <div className="bg-black/50 border border-white/10 rounded-2xl p-4 md:p-8 relative overflow-hidden">
+                <div className="bg-black/50 border border-white/10 rounded-2xl p-3 md:p-4 relative overflow-hidden">
                     {content ? (
                         content.component
                     ) : (

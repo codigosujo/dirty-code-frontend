@@ -191,14 +191,13 @@ export function GlobalChat() {
                         id="chat-input"
                         value={newMessage}
                         onChange={(e) => handleMessageChange(e.target.value)}
-                        onKeyDown={(e: any) => {
-                            if (e.key === ' ') {
-                                e.stopPropagation();
-                            }
-                        }}
                         placeholder={cooldown > 0 ? `Aguarde ${cooldown}s...` : "Digite sua mensagem cifrada..."}
                         variant="bordered"
                         className="flex-1"
+                        classNames={{
+                            input: "selection:bg-primary/30 focus:outline-none",
+                            inputWrapper: "focus-within:ring-0 focus-within:border-primary/50"
+                        }}
                         isDisabled={isSending || cooldown > 0}
                         autoComplete="off"
                     />

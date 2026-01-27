@@ -7,6 +7,25 @@ export interface ChangelogItem {
 
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
+        version: "0.2.4",
+        title: "Bugfixes e ajustes na UI.",
+        date: "27/01/2026",
+        items: [
+            "UI: Redução de 15% no tamanho vertical do card do usuário (UserProfileCard) para melhor aproveitamento de tela.",
+            "UI: Ajuste de paddings, gaps e tamanhos de ícones/avatares para um layout mais compacto.",
+            "UI: Redução significativa do espaço entre a barra superior (Topbar) e o card do usuário.",
+            "UI: Redução do espaço entre o card do usuário e o conteúdo das tarefas.",
+            "UX: O menu de navegação lateral/inferior agora é fixo (sticky) junto com o card do usuário, facilitando a navegação em páginas longas.",
+            "Layout: Otimização de containers e espaçamentos no dashboard principal.",
+            "Bugfix: Corrigida impossibilidade de usar a tecla de espaço e selecionar texto nos inputs de onboarding.",
+            "Infra: Atualização do HeroUI para a versão 2.8.7.",
+            "Bugfix: Melhoria na estabilidade dos componentes de UI.",
+            "UI: Removido o contorno (focus ring) branco indesejado nos campos de entrada (Input e Textarea) ao focar.",
+            "UI: Ajustado seletor de quantidade de ações (batch field) para aceitar valores entre 0 e 99 em todas as abas.",
+            "UX: A página agora volta para o topo automaticamente ao trocar de aba no dashboard."
+        ]
+    },
+    {
         version: "0.2.3",
         title: "Pequenos ajustes de UI, rework completo da aba de treinamentos.",
         date: "24/01/2026",
@@ -121,4 +140,4 @@ export const CHANGELOG_DATA: ChangelogItem[] = [
     }
 ];
 
-export const CURRENT_VERSION = CHANGELOG_DATA[0].version;
+export const CURRENT_VERSION = "0.2.5";

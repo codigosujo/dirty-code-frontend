@@ -85,7 +85,7 @@ export function TrainingPage() {
                 <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
             </div>
 
-            <div className="mt-6">
+            <div className="mt-4 md:mt-5">
                 {!isLoading && groupedActions.length > 0 ? (
                     <Accordion 
                         variant="splitted" 
@@ -119,7 +119,7 @@ export function TrainingPage() {
                                     content: "px-2 pb-4"
                                 }}
                             >
-                                <div className="grid grid-cols-1 gap-4">
+                                <div className="grid grid-cols-1 gap-2 md:gap-3">
                                     {group.actions.map(action => (
                                         <ActionCard key={action.id} action={action} actionCount={actionCount} />
                                     ))}

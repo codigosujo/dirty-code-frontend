@@ -42,6 +42,8 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
     }, [feedback]);
 
     const handleAction = async () => {
+        if (actionCount <= 0) return;
+
         const staminaNeededPerAction = Math.abs(action.stamina);
         const currentStamina = user?.activeAvatar?.stamina ?? 0;
         

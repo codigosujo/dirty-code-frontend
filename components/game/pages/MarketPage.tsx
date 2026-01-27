@@ -40,7 +40,7 @@ export function MarketPage() {
                 <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mt-6">
+            <div className="grid grid-cols-1 gap-2 md:gap-3 mt-4 md:mt-5">
                 {actions.map(action => (
                     <ActionCard key={action.id} action={action} actionCount={actionCount} />
                 ))}

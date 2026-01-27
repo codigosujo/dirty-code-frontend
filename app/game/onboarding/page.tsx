@@ -311,9 +311,9 @@ export default function OnboardingPage() {
                             )
                         }
                         classNames={{
-                            inputWrapper: "bg-white/5 border-white/10 hover:border-white/20 focus-within:border-primary/50 h-12",
+                            inputWrapper: "bg-white/5 border-white/10 hover:border-white/20 focus-within:border-primary/50 h-12 focus-within:ring-0",
                             label: "text-gray-400 font-medium",
-                            input: "text-white"
+                            input: "text-white selection:bg-primary/30 focus:outline-none"
                         }}
                     />
 
@@ -352,9 +352,9 @@ export default function OnboardingPage() {
                         minRows={4}
                         description={`${story.length}/200 caracteres`}
                         classNames={{
-                            inputWrapper: "bg-white/5 border-white/10 hover:border-white/20 focus-within:border-primary/50",
+                            inputWrapper: "bg-white/5 border-white/10 hover:border-white/20 focus-within:border-primary/50 focus-within:ring-0",
                             label: "text-gray-400 font-medium",
-                            input: "text-white resize-none",
+                            input: "text-white resize-none selection:bg-primary/30 focus:outline-none",
                             description: "text-gray-500 text-right"
                         }}
                     />

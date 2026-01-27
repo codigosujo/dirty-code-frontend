@@ -9,17 +9,17 @@ interface ActionQuantitySelectorProps {
 
 export function ActionQuantitySelector({ value, onChange }: ActionQuantitySelectorProps) {
     const handleIncrement = () => {
-        onChange(Math.min(value + 1, 100));
+        onChange(Math.min(value + 1, 99));
     };
 
     const handleDecrement = () => {
-        onChange(Math.max(value - 1, 1));
+        onChange(Math.max(value - 1, 0));
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = parseInt(e.target.value);
         if (!isNaN(newValue)) {
-            onChange(Math.min(Math.max(newValue, 1), 100));
+            onChange(Math.min(Math.max(newValue, 0), 99));
         }
     };
 
@@ -42,14 +42,16 @@ export function ActionQuantitySelector({ value, onChange }: ActionQuantitySelect
                     </Button>
                     <Input
                         type="number"
+                        min={0}
+                        max={99}
                         value={value.toString()}
                         onChange={handleChange}
                         className="w-12 text-center"
                         variant="flat"
                         size="sm"
                         classNames={{
-                            input: "text-center font-mono font-bold p-0",
-                            inputWrapper: "h-8 min-h-8 rounded-none bg-transparent shadow-none"
+                            input: "text-center font-mono font-bold p-0 focus:outline-none",
+                            inputWrapper: "h-8 min-h-8 rounded-none bg-transparent shadow-none focus-within:ring-0"
                         }}
                     />
                     <Button
