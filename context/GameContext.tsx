@@ -260,9 +260,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
         if (typeof window !== 'undefined') {
             localStorage.removeItem('dirty_user_info');
             Cookies.remove('dirty_action_counts');
+            window.location.href = '/';
         }
         
-        router.push('/');
         setIsLoading(false);
     };
 
