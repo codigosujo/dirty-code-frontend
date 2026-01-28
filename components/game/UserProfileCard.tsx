@@ -8,7 +8,7 @@ import { Avatar, Card, CardBody, Progress, Tooltip } from "@heroui/react";
 import { useState } from "react";
 
 export function UserProfileCard() {
-    const { user, refreshUser } = useGame();
+    const { user, syncUserWithBackend } = useGame();
     const [isUpdating, setIsUpdating] = useState(false);
 
     const availablePoints = user?.activeAvatar?.availablePoints ?? 0;
@@ -36,9 +36,9 @@ export function UserProfileCard() {
 
         setIsUpdating(true);
         try {
-            const updatedAvatar = await api.increaseAttribute(attr);
-
-            refreshUser({ activeAvatar: updatedAvatar });
+            await api.increaseAttribute(attr);
+            // Sync with backend to get the fully updated avatar state including potential level ups or side effects
+            await syncUserWithBackend();
         } catch (error) {
             console.error("Erro ao aumentar atributo:", error);
         } finally {

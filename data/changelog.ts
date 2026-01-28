@@ -7,6 +7,16 @@ export interface ChangelogItem {
 
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
+        version: "0.2.5",
+        title: "Novo Sistema: Dr. Hoo Lee Sheet",
+        date: "28/01/2026",
+        items: [
+            "Dr. Hoo Lee Sheet: Implementada lógica de visibilidade (10% de chance) controlada pelo backend com recálculo a cada 10 minutos.",
+            "Dr. Hoo Lee Sheet: Implementados preços dinâmicos que aumentam 50% a cada compra, com persistência individual por avatar.",
+            "Dr. Hoo Lee Sheet: Adicionado novo componente DrStrange.tsx com movimento aleatório e opção de fixar posição.",
+        ]
+    },
+    {
         version: "0.2.4",
         title: "Bugfixes e ajustes na UI.",
         date: "27/01/2026",

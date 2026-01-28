@@ -36,6 +36,7 @@ interface GameContextType {
     chatToken: string | null;
     cachedActions: Record<GameActionType, GameAction[]>;
     fetchActions: (type: GameActionType, silent?: boolean) => Promise<void>;
+    syncUserWithBackend: () => Promise<void>;
     avatarCache: Record<string, any>;
     getAvatarData: (avatarId: string, forceRefresh?: boolean) => Promise<any>;
 }
@@ -113,6 +114,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 ...prev,
                 [type]: data
             }));
+            // Sync user data whenever actions are fetched to catch state changes (like Dr. Strange visibility)
+            await syncUserWithBackend();
         } catch (error) {
             console.error(`Erro ao buscar ações do tipo ${type}:`, error);
         } finally {
@@ -161,6 +164,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
             chatService.disconnect();
         };
     }, [user?.activeAvatar?.id]);
+
+    const syncUserWithBackend = async () => {
+        try {
+            const response = await fetch('/api/user/me');
+            if (response.ok) {
+                const serverUser = await response.json();
+                setUser(serverUser);
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('dirty_user_info', JSON.stringify(serverUser));
+                }
+            } else if (response.status === 401 || response.status === 403) {
+                if (window.location.pathname !== '/') {
+                    logout();
+                }
+            }
+        } catch (error) {
+            console.error('Failed to sync user with backend:', error);
+        }
+    };
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -330,6 +352,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 }
             }
 
+            // Sync with backend to ensure all side-effects (levels, visibility, etc) are up to date
+            await syncUserWithBackend();
+
             // Atualiza ações em background após realizar uma ação (ex: novos jobs podem ter surgido)
             updateAllActions();
 
@@ -386,6 +411,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             chatToken,
             cachedActions,
             fetchActions,
+            syncUserWithBackend,
             avatarCache,
             getAvatarData
         }}>

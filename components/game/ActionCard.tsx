@@ -11,9 +11,11 @@ import { CountdownTimer } from "./CountdownTimer";
 interface ActionCardProps {
     action: GameAction;
     actionCount?: number;
+    hideRequirements?: boolean;
+    isSmall?: boolean;
 }
 
-export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
+export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequirementsProp, isSmall }: ActionCardProps) {
     const { performAction, user } = useGame();
     const [isLoading, setIsLoading] = useState(false);
     const [feedback, setFeedback] = useState<{ 
@@ -138,7 +140,7 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
     const isTraining = action.type === GameActionType.TRAINING;
     const isMarket = action.type === GameActionType.MARKET;
     const isHospital = action.type === GameActionType.HOSPITAL;
-    const hideRequirements = isTraining || isMarket || isHospital;
+    const hideRequirements = hideRequirementsProp || isTraining || isMarket || isHospital;
 
     const hasStatusCooldown = !!user?.activeAvatar?.statusCooldown;
     const isTrainingDisabled = isTraining && hasStatusCooldown;
@@ -229,9 +231,9 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                 )}
             </AnimatePresence>
 
-            <CardBody className="flex flex-row items-center justify-between p-6 gap-6">
+            <CardBody className={`flex flex-row items-center justify-between ${isSmall ? 'p-3.5 gap-4' : 'p-6 gap-6'}`}>
                 {action.actionImage && (
-                    <div className="flex-shrink-0 w-32 h-32 rounded-lg overflow-hidden border border-white/5">
+                    <div className={`flex-shrink-0 ${isSmall ? 'w-20 h-20' : 'w-32 h-32'} rounded-lg overflow-hidden border border-white/5`}>
                         <img
                             src={`/actions/images/${action.actionImage}?v=${new Date().getTime()}`}
                             alt={action.title}
@@ -239,10 +241,10 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                         />
                     </div>
                 )}
-                <div className="flex-1 space-y-4">
+                <div className="flex-1 space-y-2">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                            <h3 className={`font-bold text-xl text-white group-hover:text-primary transition-colors`}>
+                            <h3 className={`font-bold ${isSmall ? 'text-sm' : 'text-xl'} text-white group-hover:text-primary transition-colors`}>
                                 {action.title}
                             </h3>
                             {isLoading && (
@@ -252,10 +254,10 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                                 </span>
                             )}
                         </div>
-                        <p className="text-sm text-gray-400 leading-relaxed">{action.description}</p>
+                        <p className={`${isSmall ? 'text-[11px]' : 'text-sm'} text-gray-400 leading-relaxed`}>{action.description}</p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-mono text-gray-500">
+                    <div className={`flex flex-wrap items-center ${isSmall ? 'gap-x-4 gap-y-1.5 text-[11px]' : 'gap-x-6 gap-y-2 text-xs'} font-mono text-gray-500`}>
                         {stamina !== 0 && (
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
@@ -298,7 +300,7 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                                 <span>{tempSteGain > 0 ? '+' : ''}{tempSteGain} DIS</span>
                             </div>
                         )}
-                        {action.lostHpFailure !== undefined && action.lostHpFailure !== 0 && (
+                        {!hideRequirements && action.lostHpFailure !== undefined && action.lostHpFailure !== 0 && (
                             <div className="flex items-center gap-1.5 text-red-400/80">
                                 <span className="w-2 h-2 rounded-full bg-red-600"></span>
                                 <span>
@@ -306,7 +308,7 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                                 </span>
                             </div>
                         )}
-                        {action.canBeArrested && (
+                        {!hideRequirements && action.canBeArrested && (
                             <div className="flex items-center gap-1.5 text-orange-400/80">
                                 <span className="w-2 h-2 rounded-full bg-orange-600"></span>
                                 <span>
@@ -362,7 +364,7 @@ export function ActionCard({ action, actionCount = 1 }: ActionCardProps) {
                         </>
                     )}
                     {moneyReward !== undefined && moneyReward !== 0 && (
-                        <div className={`text-2xl font-bold ${moneyReward > 0 ? 'text-green-500' : (user?.activeAvatar?.money ?? 0) < Math.abs(moneyReward) ? 'text-red-600' : 'text-red-500'}`}>
+                        <div className={`${isSmall ? 'text-xl' : 'text-2xl'} font-bold ${moneyReward > 0 ? 'text-green-500' : (user?.activeAvatar?.money ?? 0) < Math.abs(moneyReward) ? 'text-red-600' : 'text-red-500'}`}>
                             R$ {formatMoneyValue(moneyReward, hasMoneyVariation)}
                         </div>
                     )}

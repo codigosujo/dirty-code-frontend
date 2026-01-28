@@ -26,6 +26,7 @@ export interface Avatar {
     story?: string;
     timeout?: string; // ISO datetime string when timeout expires
     timeoutType?: string; // "HOSPITAL" or "JAIL"
+    drStrangeVisible?: boolean;
 }
 
 export enum GameActionType {
@@ -35,7 +36,8 @@ export enum GameActionType {
     MARKET = 'MARKET',
     STORE = 'STORE',
     HOSPITAL = 'HOSPITAL',
-    JAIL = 'JAIL'
+    JAIL = 'JAIL',
+    SPECIAL_STATUS_SELLER = 'SPECIAL_STATUS_SELLER'
 }
 
 export interface GameAction {

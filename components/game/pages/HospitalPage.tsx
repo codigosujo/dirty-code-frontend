@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 import { api, GameActionType } from "@/services/api";
 import { useGame } from "@/context/GameContext";
 import { formatMoney, getNoMoneyMessage, isNoMoneyError } from "@/lib/game-utils";
+import { DrStrange } from "@/components/game/DrStrange";
 
 export function HospitalPage() {
-    const { user, refreshUser, actionCounts, setActionCountForCategory, cachedActions, fetchActions } = useGame();
+    const { user, syncUserWithBackend, actionCounts, setActionCountForCategory, cachedActions, fetchActions } = useGame();
     const actions = cachedActions[GameActionType.HOSPITAL] || [];
     const [isLoading, setIsLoading] = useState(actions.length === 0);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -70,11 +71,8 @@ export function HospitalPage() {
     const handleDischarge = async () => {
         setIsProcessing(true);
         try {
-            const result = await api.leaveTimeout();
-
-            if (result.avatar) {
-                refreshUser({ activeAvatar: result.avatar });
-            }
+            await api.leaveTimeout();
+            await syncUserWithBackend();
 
             window.location.href = '/game';
         } catch (error: any) {
@@ -87,11 +85,8 @@ export function HospitalPage() {
     const handleBuyFreedom = async () => {
         setIsProcessing(true);
         try {
-            const result = await api.buyFreedom();
-
-            if (result.avatar) {
-                refreshUser({ activeAvatar: result.avatar });
-            }
+            await api.buyFreedom();
+            await syncUserWithBackend();
 
             window.location.href = '/game';
         } catch (error: any) {
@@ -123,7 +118,8 @@ export function HospitalPage() {
                 </div>
 
                 {/* Content area - following the grid pattern */}
-                <div className="grid grid-cols-1 gap-4 mt-6">
+                <div className="grid grid-cols-1 gap-4 mt-6 relative">
+                    <DrStrange />
                     {/* Hospital scene card */}
                     <div className="bg-black/30 border border-red-500/50 rounded-xl p-6 md:p-8">
                         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
@@ -245,7 +241,8 @@ export function HospitalPage() {
                 <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mt-6">
+            <div className="grid grid-cols-1 gap-4 mt-6 relative min-h-[200px]">
+                <DrStrange />
                 {actions.map(action => (
                     <ActionCard key={action.id} action={action} actionCount={actionCount} />
                 ))}
