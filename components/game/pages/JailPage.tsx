@@ -6,7 +6,7 @@ import { useGame } from "@/context/GameContext";
 import { formatMoney, getNoMoneyMessage, isNoMoneyError } from "@/lib/game-utils";
 
 export function JailPage() {
-    const { user, syncUserWithBackend, cachedActions, fetchActions } = useGame();
+    const { user, syncUserWithBackend, refreshUser, cachedActions, fetchActions } = useGame();
     const actions = cachedActions[GameActionType.JAIL] || [];
     const [_isLoading, setIsLoading] = useState(actions.length === 0);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -64,11 +64,16 @@ export function JailPage() {
     const canAffordFreedom = avatar ? avatar.money >= freedomCost : false;
 
     const handleRelease = async () => {
+        if (isProcessing) return;
         setIsProcessing(true);
         try {
-            await api.leaveTimeout();
+            const result = await api.leaveTimeout();
+            if (result.avatar) {
+                refreshUser({ activeAvatar: result.avatar });
+            }
             await syncUserWithBackend();
         } catch (error: any) {
+            console.error('Erro ao sair da prisão:', error);
             alert(error.message || 'Erro ao sair da prisão');
         } finally {
             setIsProcessing(false);
@@ -76,11 +81,16 @@ export function JailPage() {
     };
 
     const handleBuyFreedom = async () => {
+        if (isProcessing) return;
         setIsProcessing(true);
         try {
-            await api.buyFreedom();
+            const result = await api.buyFreedom();
+            if (result.avatar) {
+                refreshUser({ activeAvatar: result.avatar });
+            }
             await syncUserWithBackend();
         } catch (error: any) {
+            console.error('Erro ao comprar liberdade:', error);
             let message = error.message || 'Erro ao comprar liberdade';
             
             if (isNoMoneyError(message)) {

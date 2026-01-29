@@ -97,6 +97,7 @@ export default function GameDashboard() {
     const [activeTab, setActiveTab] = useState("Helldit");
     const { user, setOnTimeoutRedirect, syncUserWithBackend } = useGame();
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const [wasInTimeout, setWasInTimeout] = useState(false);
 
     const content = MENU_ITEMS.find(item => item.id === activeTab);
 
@@ -146,13 +147,16 @@ export default function GameDashboard() {
         }
     }, [isInTimeout, isTimeoutExpired, timeoutType]);
 
-    // Handle return from timeout: if was in timeout and now is not, go to Helldit
+    // Handle return from timeout: if was in timeout and now is not, just reset state
     useEffect(() => {
-        // We only care if isInTimeout becomes false/null while we are on a timeout tab
-        if (!isInTimeout && (activeTab === 'hospital' || activeTab === 'jail')) {
-            setActiveTab('Helldit');
+        if (isInTimeout && !isTimeoutExpired) {
+            setWasInTimeout(true);
         }
-    }, [isInTimeout, activeTab]);
+
+        if (!isInTimeout && wasInTimeout) {
+            setWasInTimeout(false);
+        }
+    }, [isInTimeout, isTimeoutExpired, wasInTimeout]);
 
     // Override setActiveTab to prevent navigation when in timeout
     const handleTabChange = (tabId: string) => {
@@ -172,9 +176,12 @@ export default function GameDashboard() {
                 setActiveTab(tabId);
                 return;
             }
-            // Silently ignore navigation to blocked tabs
+            // Silently ignore navigation to blocked tabs when in timeout
             return;
         }
+
+        // Navigation to Hospital or Jail is always allowed when NOT in timeout
+        // (Other tabs are allowed by default as well)
         setActiveTab(tabId);
     };
 

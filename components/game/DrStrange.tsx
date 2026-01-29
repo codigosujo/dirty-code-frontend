@@ -10,6 +10,8 @@ export function DrStrange() {
     const { cachedActions, fetchActions, user } = useGame();
     const drActions = cachedActions[GameActionType.SPECIAL_STATUS_SELLER] || [];
     const isVisible = user?.activeAvatar?.drStrangeVisible;
+    const isInHospital = user?.activeAvatar?.timeoutType === 'HOSPITAL' && user?.activeAvatar?.timeout;
+    const isActuallyVisible = isVisible && !isInHospital;
 
     const [position, setPosition] = useState({ top: '50%', left: '50%' })
     const [isLocked, setIsLocked] = useState(false)
@@ -17,16 +19,16 @@ export function DrStrange() {
     const containerRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        if (isVisible) {
+        if (isActuallyVisible) {
             const loadActions = async () => {
                 await fetchActions(GameActionType.SPECIAL_STATUS_SELLER);
             };
             loadActions();
         }
-    }, [isVisible]);
+    }, [isActuallyVisible]);
 
     const moveBall = (force = false) => {
-        if (!containerRef.current || (isLocked && !force) || showModal || !isVisible) return
+        if (!containerRef.current || (isLocked && !force) || showModal || !isActuallyVisible) return
 
         const container = containerRef.current
         const ballSize = 64
@@ -44,7 +46,7 @@ export function DrStrange() {
     }
 
     useEffect(() => {
-        if (!isVisible) return;
+        if (!isActuallyVisible) return;
         
         // Initial position
         setTimeout(() => moveBall(true), 100); // Small delay to ensure container dimensions are available
@@ -60,9 +62,9 @@ export function DrStrange() {
             clearInterval(interval)
             window.removeEventListener('resize', handleResize)
         }
-    }, [isLocked, isVisible])
+    }, [isLocked, isActuallyVisible])
 
-    if (!isVisible) return null;
+    if (!isActuallyVisible) return null;
 
     return (
         <div 
