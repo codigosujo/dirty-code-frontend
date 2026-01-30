@@ -182,4 +182,4 @@ export const CHANGELOG_DATA: ChangelogItem[] = [
     }
 ];
 
-export const CURRENT_VERSION = "0.3.0";
+export const CURRENT_VERSION = CHANGELOG_DATA[0].version;
