@@ -9,7 +9,7 @@ import { Accordion, AccordionItem } from "@heroui/react";
 import { CountdownTimer } from "../CountdownTimer";
 
 export function TrainingPage() {
-    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions } = useGame();
+    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, expandedAccordionKeys, setExpandedAccordionKeysForCategory } = useGame();
     const actions = cachedActions[GameActionType.TRAINING] || [];
     const [isLoading, setIsLoading] = useState(actions.length === 0);
     const actionCount = actionCounts['training'] || 1;
@@ -17,7 +17,6 @@ export function TrainingPage() {
 
     const userLevel = user?.activeAvatar?.level || 1;
 
-    // Agrupar ações por recommendedMaxLevel
     const groupedActions = useMemo(() => {
         const groups: Record<number, GameAction[]> = {};
         actions.forEach(action => {
@@ -35,14 +34,55 @@ export function TrainingPage() {
             }));
     }, [actions]);
 
+    const persistedKeys = expandedAccordionKeys[GameActionType.TRAINING];
+
+    const [expandedKeys, setExpandedKeys] = useState<string[] | "all">(persistedKeys || []);
+
     const defaultExpandedKey = useMemo(() => {
         if (groupedActions.length === 0) return undefined;
-        const exactMatch = groupedActions.find(g => g.level === userLevel);
+        
+        const exactMatch = groupedActions.find(g => userLevel <= g.level && userLevel >= g.level - 10);
         if (exactMatch) return exactMatch.level.toString();
-        const nextLevel = groupedActions.find(g => g.level > userLevel);
+
+        const nextLevel = groupedActions.find(g => g.level > userLevel && userLevel >= g.level - 10);
         if (nextLevel) return nextLevel.level.toString();
-        return groupedActions[groupedActions.length - 1].level.toString();
+
+        const availableGroups = groupedActions.filter(g => g.level === 0 || userLevel >= g.level - 10);
+        if (availableGroups.length > 0) {
+            return availableGroups[availableGroups.length - 1].level.toString();
+        }
+
+        return undefined;
     }, [groupedActions, userLevel]);
+
+    useEffect(() => {
+        if (persistedKeys && persistedKeys.length > 0) {
+            const filtered = persistedKeys.filter(key => {
+                const level = parseInt(key);
+                return level === 0 || userLevel >= level - 10;
+            });
+            
+            if (JSON.stringify(filtered) !== JSON.stringify(expandedKeys)) {
+                setExpandedKeys(filtered);
+            }
+        } else if (defaultExpandedKey) {
+            if (JSON.stringify([defaultExpandedKey]) !== JSON.stringify(expandedKeys)) {
+                setExpandedKeys([defaultExpandedKey]);
+            }
+        }
+    }, [persistedKeys, userLevel, defaultExpandedKey]);
+
+    const handleExpandedChange = (keys: any) => {
+        const keysArray = Array.from(keys) as string[];
+
+        const allowedKeys = keysArray.filter(key => {
+            const level = parseInt(key);
+            return level === 0 || userLevel >= level - 10;
+        });
+
+        setExpandedKeys(allowedKeys);
+        setExpandedAccordionKeysForCategory(GameActionType.TRAINING, allowedKeys);
+    };
 
     useEffect(() => {
         const loadActions = async () => {
@@ -90,42 +130,54 @@ export function TrainingPage() {
                     <Accordion 
                         variant="splitted" 
                         selectionMode="multiple" 
-                        defaultExpandedKeys={defaultExpandedKey ? [defaultExpandedKey] : []}
+                        selectedKeys={expandedKeys}
+                        onSelectionChange={handleExpandedChange}
                     >
-                        {groupedActions.map((group) => (
-                            <AccordionItem
-                                key={group.level.toString()}
-                                aria-label={`Nível Recomendado ${group.level}`}
-                                title={
-                                    <div className="flex items-center justify-between pr-4">
-                                        <span className="text-white font-bold uppercase tracking-wider">
-                                            {group.level === 0 ? "Geral" : `Treinos recomendados até o nível ${group.level}`}
-                                        </span>
-                                        {group.level > 0 && group.level < userLevel && (
-                                            <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded border border-green-500/30">
-                                                Completado
-                                            </span>
-                                        )}
-                                        {group.level === userLevel && (
-                                            <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded border border-primary/30">
-                                                Nível Atual
-                                            </span>
-                                        )}
+                        {groupedActions.map((group) => {
+                            const isLocked = group.level > 0 && userLevel < group.level - 10;
+                            return (
+                                <AccordionItem
+                                    key={group.level.toString()}
+                                    aria-label={`Nível Recomendado ${group.level}`}
+                                    isDisabled={isLocked}
+                                    title={
+                                        <div className="flex items-center justify-between pr-4">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`font-bold uppercase tracking-wider ${isLocked ? 'text-gray-600' : 'text-white'}`}>
+                                                    {group.level === 0 ? "Geral" : `Treinos recomendados do nível ${Math.max(0, group.level - 10)} até o nível ${group.level}`}
+                                                </span>
+                                                {isLocked && (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-gray-600">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            {group.level > 0 && group.level < userLevel && (
+                                                <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded border border-green-500/30">
+                                                    Completado
+                                                </span>
+                                            )}
+                                            {group.level === userLevel && (
+                                                <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded border border-primary/30">
+                                                    Nível Atual
+                                                </span>
+                                            )}
+                                        </div>
+                                    }
+                                    classNames={{
+                                        base: `bg-zinc-900/50 border border-white/5 mb-2 ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`,
+                                        title: "text-sm",
+                                        content: "px-2 pb-4"
+                                    }}
+                                >
+                                    <div className="grid grid-cols-1 gap-2 md:gap-3">
+                                        {group.actions.map(action => (
+                                            <ActionCard key={action.id} action={action} actionCount={actionCount} />
+                                        ))}
                                     </div>
-                                }
-                                classNames={{
-                                    base: "bg-zinc-900/50 border border-white/5 mb-2",
-                                    title: "text-sm",
-                                    content: "px-2 pb-4"
-                                }}
-                            >
-                                <div className="grid grid-cols-1 gap-2 md:gap-3">
-                                    {group.actions.map(action => (
-                                        <ActionCard key={action.id} action={action} actionCount={actionCount} />
-                                    ))}
-                                </div>
-                            </AccordionItem>
-                        ))}
+                                </AccordionItem>
+                            );
+                        })}
                     </Accordion>
                 ) : !isLoading && (
                     <p className="text-gray-500 font-mono italic">Nenhum treinamento disponível no momento.</p>

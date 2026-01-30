@@ -1,9 +1,8 @@
 'use client'
 
 import { useGame } from "@/context/GameContext";
-import titlesData from "@/public/avatars/titles.json";
 import { api } from "@/services/api";
-import { formatMoney } from "@/lib/game-utils";
+import { formatMoney, getAvatarTitle } from "@/lib/game-utils";
 import { Avatar, Card, CardBody, Progress, Tooltip } from "@heroui/react";
 import { useState } from "react";
 
@@ -13,23 +12,6 @@ export function UserProfileCard() {
 
     const availablePoints = user?.activeAvatar?.availablePoints ?? 0;
 
-    const getTitle = () => {
-        const avatar = user?.activeAvatar;
-        if (!avatar) return "Iniciante";
-        const focus = avatar.focus || 'both';
-        const titles = (titlesData as any)[focus];
-        
-        if (!titles) return "Iniciante";
-        const value = Number(avatar.level) || 0;
-        const thresholds = Object.keys(titles).map(Number).sort((a, b) => a - b);
-        
-        if (value >= thresholds[thresholds.length - 1]) {
-            return titles[thresholds[thresholds.length - 1]];
-        }
-
-        const nextThreshold = thresholds.find(t => t > value);
-        return nextThreshold ? titles[nextThreshold] : "Iniciante";
-    };
 
     const handleIncreaseAttribute = async (attr: string) => {
         if (!user?.activeAvatar || isUpdating || availablePoints <= 0) return;
@@ -106,7 +88,7 @@ export function UserProfileCard() {
                     </div>
                     <div className="flex flex-col items-center text-center w-full">
                         <h3 className="font-bold text-sm md:text-base leading-none mt-1 md:mt-1.5 truncate w-full px-1">{user?.activeAvatar?.name}</h3>
-                        <p className="text-[9px] md:text-[11px] text-gray-500 font-mono w-full">{getTitle()}</p>
+                        <p className="text-[9px] md:text-[11px] text-gray-500 font-mono w-full">{user?.activeAvatar ? getAvatarTitle(user.activeAvatar.level, user.activeAvatar.hacking, user.activeAvatar.work) : "Iniciante"}</p>
                     </div>
                 </div>
 

@@ -1,4 +1,6 @@
 
+import titlesData from "@/public/avatars/titles.json";
+
 export async function getNoMoneyMessage(): Promise<string> {
     try {
         const response = await fetch('/actions/descriptions/no_money.json');
@@ -40,4 +42,35 @@ export function formatMoney(value: number): string {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
+}
+
+export function calculateAvatarFocus(hacking: number, work: number): 'work' | 'hacking' | 'both' {
+    const totalActions = hacking + work;
+
+    if (totalActions === 0) return 'work';
+
+    if (Math.abs(hacking - work) < 10 && totalActions > 20) {
+        return 'both';
+    }
+
+    if (hacking === work) return 'work';
+
+    return hacking > work ? 'hacking' : 'work';
+}
+
+export function getAvatarTitle(level: number, hacking: number, work: number): string {
+    const focus = calculateAvatarFocus(hacking, work);
+    const titles = (titlesData as any)[focus];
+
+    if (!titles) return "Iniciante";
+    
+    const value = Number(level) || 0;
+    const thresholds = Object.keys(titles).map(Number).sort((a, b) => a - b);
+
+    if (value >= thresholds[thresholds.length - 1]) {
+        return titles[thresholds[thresholds.length - 1]];
+    }
+
+    const nextThreshold = thresholds.find(t => t > value);
+    return nextThreshold ? titles[nextThreshold] : "Iniciante";
 }

@@ -7,6 +7,23 @@ export interface ChangelogItem {
 
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
+        version: "0.2.7",
+        title: "Novas tarefas e melhorias de UX.",
+        date: "29/01/2026",
+        items: [
+            "GameMechanic: Adicionadas novas ações e tarefas em diversas categorias.",
+            "UX: Implementada persistência do estado dos acordeões (Work, Hacking, Training) via cookies.",
+            "UX: Restrição de nível para abertura de abas de atividades, garantindo progressão lógica.",
+            "UX: Notificação visual (ponto pulsante) no Helldit quando há novas mensagens não lidas.",
+            "Security: Limpeza completa de dados locais (localStorage e cookies) ao realizar logout.",
+            "UI: Refinamentos visuais na OnboardingModal e remoção de artefatos gráficos.",
+            "UI: Destaque visual aprimorado para a seleção de avatar no onboarding.",
+            "Code: Centralização da lógica de títulos e foco do avatar em utilitários globais.",
+            "Cleanup: Remoção de comentários redundantes e limpeza geral do código-fonte.",
+            "UX: Garantia de que dados locais 'morram' automaticamente após um período de inatividade, aumentando a segurança em dispositivos compartilhados."
+        ]
+    },
+    {
         version: "0.2.6",
         title: "Reformulação do onboarding e pequenas melhorias.",
         date: "29/01/2026",
@@ -162,4 +179,4 @@ export const CHANGELOG_DATA: ChangelogItem[] = [
     }
 ];
 
-export const CURRENT_VERSION = CHANGELOG_DATA[0].version;
+export const CURRENT_VERSION = "0.2.9";

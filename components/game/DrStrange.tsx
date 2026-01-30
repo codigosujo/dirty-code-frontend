@@ -48,13 +48,10 @@ export function DrStrange() {
     useEffect(() => {
         if (!isActuallyVisible) return;
         
-        // Initial position
-        setTimeout(() => moveBall(true), 100); // Small delay to ensure container dimensions are available
+        setTimeout(() => moveBall(true), 100);
 
-        // Move every minute
         const interval = setInterval(() => moveBall(), 60000)
 
-        // Also move on resize to avoid getting stuck outside
         const handleResize = () => moveBall(true)
         window.addEventListener('resize', handleResize)
 
@@ -96,7 +93,6 @@ export function DrStrange() {
                             alt="Dr. Hoo Lee Sheet" 
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                                // Fallback if image doesn't exist
                                 e.currentTarget.src = "https://api.dicebear.com/7.x/avataaars/svg?seed=DrStrange"
                             }}
                         />
@@ -104,7 +100,6 @@ export function DrStrange() {
                 </Tooltip>
             </div>
 
-            {/* Activities Style Modal */}
             {showModal && (
                 <div 
                     className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm pointer-events-auto"
@@ -114,7 +109,6 @@ export function DrStrange() {
                         className="bg-[#1a1a1a] border border-[#00ff9d]/50 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Modal Header */}
                         <div className="bg-[#00ff9d]/10 p-3 border-b border-[#00ff9d]/30 flex justify-between items-center">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full border-2 border-[#00ff9d] overflow-hidden bg-black">
@@ -140,7 +134,6 @@ export function DrStrange() {
                             </button>
                         </div>
 
-                        {/* Modal Body */}
                         <div className="p-4 space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
                             <p className="text-gray-300 text-xs italic border-l-2 border-[#00ff9d] pl-3">
                                 Olá! Sou o Dr. Hoo Lee Sheet. Tenho umas paradinhas que podem te ajudar...<br />
@@ -160,7 +153,6 @@ export function DrStrange() {
                             </div>
                         </div>
 
-                        {/* Modal Footer */}
                         <div className="p-2 bg-black/40 text-center">
                             <p className="text-[9px] text-gray-500 uppercase tracking-widest">
                                 Promoção por tempo limitado

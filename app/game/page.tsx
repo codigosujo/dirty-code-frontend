@@ -16,7 +16,6 @@ import { DefaultPage } from "@/components/game/pages/DefaultPage";
 import { useGame } from "@/context/GameContext";
 import { OnboardingModal } from "@/components/game/OnboardingModal";
 
-// Define Menu Items
 const MENU_ITEMS: MenuItem[] = [
     {
         title: "Helldit",
@@ -95,9 +94,16 @@ const MENU_ITEMS: MenuItem[] = [
 export default function GameDashboard() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("Helldit");
-    const { user, setOnTimeoutRedirect, syncUserWithBackend } = useGame();
+    const { user, setOnTimeoutRedirect, syncUserWithBackend, setHasUnreadMessages } = useGame();
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [wasInTimeout, setWasInTimeout] = useState(false);
+
+    // Reset unread messages when Helldit is active
+    useEffect(() => {
+        if (activeTab === "Helldit") {
+            setHasUnreadMessages(false);
+        }
+    }, [activeTab, setHasUnreadMessages]);
 
     const content = MENU_ITEMS.find(item => item.id === activeTab);
 
@@ -158,17 +164,13 @@ export default function GameDashboard() {
         }
     }, [isInTimeout, isTimeoutExpired, wasInTimeout]);
 
-    // Override setActiveTab to prevent navigation when in timeout
     const handleTabChange = (tabId: string) => {
-        // Helldit is always allowed
         if (tabId === 'Helldit') {
             setActiveTab(tabId);
             return;
         }
 
-        // If user is in timeout and hasn't expired, only allow the current timeout tab
         if (isInTimeout && !isTimeoutExpired) {
-            // Only allow navigation to the current timeout page
             if (timeoutType === 'HOSPITAL' && tabId === 'hospital') {
                 setActiveTab(tabId);
                 return;
@@ -176,12 +178,9 @@ export default function GameDashboard() {
                 setActiveTab(tabId);
                 return;
             }
-            // Silently ignore navigation to blocked tabs when in timeout
             return;
         }
 
-        // Navigation to Hospital or Jail is always allowed when NOT in timeout
-        // (Other tabs are allowed by default as well)
         setActiveTab(tabId);
     };
 
@@ -195,11 +194,9 @@ export default function GameDashboard() {
                 }} 
             />
             <div className="container mx-auto lg:px-8 space-y-2 md:space-y-3">
-                {/* 1. Fixed Header Section (Profile + Menu) */}
                 <div className="sticky top-16 z-30 pt-1 md:pt-2 pb-0 bg-black/80 backdrop-blur-md -mx-2 px-2 md:mx-0 md:px-0 flex flex-col gap-2 md:gap-3">
                     <UserProfileCard />
                     
-                    {/* 2. Game Menu Grid */}
                     <GameMenu
                         items={MENU_ITEMS}
                         activeId={activeTab}
@@ -207,16 +204,14 @@ export default function GameDashboard() {
                         lockedItems={isInTimeout && !isTimeoutExpired
                             ? MENU_ITEMS
                                 .filter(item => {
-                                    // Helldit is never locked
                                     if (item.id === 'Helldit') return false;
                                     
-                                    // Only allow the current timeout page
                                     if (timeoutType === 'HOSPITAL') {
-                                        return item.id !== 'hospital'; // Block everything except hospital
+                                        return item.id !== 'hospital';
                                     } else if (timeoutType === 'JAIL') {
-                                        return item.id !== 'jail'; // Block everything except jail
+                                        return item.id !== 'jail';
                                     }
-                                    return true; // Block by default
+                                    return true;
                                 })
                                 .map(item => item.id)
                             : []
@@ -224,7 +219,6 @@ export default function GameDashboard() {
                     />
                 </div>
 
-                {/* 3. Dynamic Content Area */}
                 <div className="bg-black/50 border border-white/10 rounded-2xl p-3 md:p-4 relative overflow-hidden">
                     {content ? (
                         content.component

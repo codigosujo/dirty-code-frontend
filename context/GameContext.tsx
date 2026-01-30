@@ -39,6 +39,10 @@ interface GameContextType {
     syncUserWithBackend: () => Promise<void>;
     avatarCache: Record<string, any>;
     getAvatarData: (avatarId: string, forceRefresh?: boolean) => Promise<any>;
+    expandedAccordionKeys: Record<string, string[]>;
+    setExpandedAccordionKeysForCategory: (category: string, keys: string[]) => void;
+    hasUnreadMessages: boolean;
+    setHasUnreadMessages: (value: boolean) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -46,22 +50,54 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export function GameProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [actionCounts, setActionCounts] = useState<Record<string, number>>({});
+    const [expandedAccordionKeys, setExpandedAccordionKeys] = useState<Record<string, string[]>>({});
+    const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
 
-    // Load initial user from localStorage and actionCounts from cookies on mount
+    const SESSION_EXPIRY_MS = 10 * 60 * 1000; // 10 minutos
+
+    const setWithExpiry = (key: string, value: any) => {
+        const item = {
+            value: value,
+            expiry: Date.now() + SESSION_EXPIRY_MS,
+        };
+        localStorage.setItem(key, JSON.stringify(item));
+    };
+
+    const getWithExpiry = (key: string) => {
+        const itemStr = localStorage.getItem(key);
+        if (!itemStr) return null;
+
+        try {
+            const item = JSON.parse(itemStr);
+            if (item.expiry && Date.now() > item.expiry) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            return item.value || item; // Fallback para dados antigos sem estrutura de expiry
+        } catch (e) {
+            return null;
+        }
+    };
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('dirty_user_info');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                setUser(parsed);
+            const savedUser = getWithExpiry('dirty_user_info');
+            if (savedUser) {
+                setUser(savedUser);
             }
 
             const savedCounts = Cookies.get('dirty_action_counts');
             if (savedCounts) {
                 const parsedCounts = JSON.parse(savedCounts);
                 setActionCounts(parsedCounts);
+            }
+
+            const savedExpandedKeys = Cookies.get('dirty_expanded_keys');
+            if (savedExpandedKeys) {
+                const parsedExpandedKeys = JSON.parse(savedExpandedKeys);
+                setExpandedAccordionKeys(parsedExpandedKeys);
             }
             setIsInitialized(true);
         }
@@ -74,7 +110,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     const getAvatarData = async (avatarId: string, forceRefresh: boolean = false) => {
-        // Se já existe no cache e não for um forceRefresh, retornamos
         const cached = avatarCache[avatarId];
         const fetchAndCache = async () => {
             try {
@@ -92,7 +127,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
         if (cached) {
             if (forceRefresh) {
-                // Atualização transparente em background
                 fetchAndCache();
             }
             return cached;
@@ -104,9 +138,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const fetchActions = async (type: GameActionType, silent: boolean = false) => {
         if (!user?.activeAvatar) return;
 
-        // Se já temos dados e não é um fetch silencioso, 
-        // poderíamos pular o loading se quisermos navegação instantânea.
-        // Mas o componente já trata isso usando o comprimento do array.
         if (!silent) setIsLoading(true);
         try {
             const data = await api.getActionsByType(type);
@@ -114,7 +145,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 ...prev,
                 [type]: data
             }));
-            // Sync user data whenever actions are fetched to catch state changes (like Dr. Strange visibility)
             await syncUserWithBackend();
         } catch (error) {
             console.error(`Erro ao buscar ações do tipo ${type}:`, error);
@@ -126,7 +156,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const updateAllActions = async () => {
         if (!user?.activeAvatar) return;
         
-        // Atualiza apenas os tipos que já foram carregados pelo menos uma vez
         const activeTypes = Object.keys(cachedActions) as GameActionType[];
         for (const type of activeTypes) {
             await fetchActions(type, true);
@@ -149,6 +178,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                                 return [...prev, ...newMessages];
                             }
                             if (prev.some(m => m.message === msg.message && m.avatarName === msg.avatarName)) return prev;
+                            setHasUnreadMessages(true);
                             return [...prev, msg];
                         });
                     }, data.token);
@@ -172,7 +202,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 const serverUser = await response.json();
                 setUser(serverUser);
                 if (typeof window !== 'undefined') {
-                    localStorage.setItem('dirty_user_info', JSON.stringify(serverUser));
+                    setWithExpiry('dirty_user_info', serverUser);
                 }
             } else if (response.status === 401 || response.status === 403) {
                 if (window.location.pathname !== '/') {
@@ -186,8 +216,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const fetchUser = async () => {
-            // Se já temos usuário (carregado do localStorage ou anterior), 
-            // não precisamos buscar de novo imediatamente, o poll fará isso.
             if (user) return;
 
             try {
@@ -196,10 +224,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
                     const userData = await res.json();
                     setUser(userData);
                     if (typeof window !== 'undefined') {
-                        localStorage.setItem('dirty_user_info', JSON.stringify(userData));
+                        setWithExpiry('dirty_user_info', userData);
                     }
                 } else if (res.status === 401 || res.status === 403) {
-                    // Só desloga se não estivermos na landing page
                     if (window.location.pathname !== '/') {
                         console.warn(`[GameContext] Session invalid (${res.status}), logging out`);
                         logout();
@@ -210,7 +237,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
             }
         };
 
-        // Only fetch if we've finished checking localStorage and still don't have a user
         if (isInitialized && !user && !isLoading) {
             fetchUser();
         }
@@ -227,7 +253,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 if (response.ok) {
                     const serverUser = await response.json();
                     setUser(serverUser);
-                    localStorage.setItem('dirty_user_info', JSON.stringify(serverUser));
+                    setWithExpiry('dirty_user_info', serverUser);
                 } else if (response.status === 401 || response.status === 403) {
                     console.warn(`[GameContext] Session expired during poll (${response.status})`);
                     logout();
@@ -243,13 +269,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const logout = async () => {
         setIsLoading(true);
         try {
-            // Call server to delete HTTP-only cookie
             await fetch('/api/logout', { method: 'POST' });
         } catch (e) {
             console.error("Logout failed", e);
         }
 
-        // Clear client state
         setUser(null);
         setActionCounts({});
         setChatToken(null);
@@ -258,8 +282,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setAvatarCache({});
         
         if (typeof window !== 'undefined') {
-            localStorage.removeItem('dirty_user_info');
+            localStorage.clear();
             Cookies.remove('dirty_action_counts');
+            Cookies.remove('dirty_expanded_keys');
+            
             window.location.href = '/';
         }
         
@@ -269,7 +295,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const login = async () => {
         setIsLoading(true);
         try {
-            // Redirect to Backend Login
             window.location.href = process.env.LOGIN_FULL_URL || 'http://127.0.0.1:8080/dirty-code/v1/gmail/auth-page';
         } catch (error) {
             console.error("Login redirect failed", error);
@@ -311,13 +336,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
                     ...prev,
                     activeAvatar: updatedAvatar
                 };
-                localStorage.setItem('dirty_user_info', JSON.stringify(updatedUser));
+                setWithExpiry('dirty_user_info', updatedUser);
                 return updatedUser;
             });
 
             let finalMessage = result.success ? "Ação concluída com sucesso!" : "A ação falhou!";
 
-            // Load and show message
             if (action.textFile) {
                 try {
                     const response = await fetch(`/actions/descriptions/${action.textFile}`);
@@ -333,7 +357,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 }
             }
 
-            // Get variations
             const variations = result.variations || (oldAvatar ? {
                 experience: (updatedAvatar.experience ?? 0) - (oldAvatar.experience ?? 0),
                 life: (updatedAvatar.life ?? 0) - (oldAvatar.life ?? 0),
@@ -345,19 +368,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 temporaryStealth: (updatedAvatar.temporaryStealth ?? 0) - (oldAvatar.temporaryStealth ?? 0),
             } : null);
 
-            // Check if user was sent to timeout (hospital or jail) and trigger redirect
             if (updatedAvatar.timeoutType && updatedAvatar.timeout) {
                 if (timeoutRedirectCallback) {
                     timeoutRedirectCallback();
                 }
             }
 
-            // Sync with backend to ensure all side-effects (levels, visibility, etc) are up to date
             await syncUserWithBackend();
-
-            // Atualiza ações em background após realizar uma ação (ex: novos jobs podem ter surgido)
             updateAllActions();
-
             router.refresh();
             return {
                 success: result.success,
@@ -375,18 +393,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setUser(prev => {
             const base = prev || {} as User;
             const updated = { ...base, ...updates };
-            localStorage.setItem('dirty_user_info', JSON.stringify(updated));
+            setWithExpiry('dirty_user_info', updated);
             return updated;
         });
     }
-    
+
     const setActionCountForCategory = (category: string, count: number) => {
         setActionCounts(prev => {
             const next = {
                 ...prev,
                 [category]: count
             };
-            Cookies.set('dirty_action_counts', JSON.stringify(next), { expires: 7 });
+            Cookies.set('dirty_action_counts', JSON.stringify(next), { expires: 1/144 }); // 10 minutos
+            return next;
+        });
+    };
+
+    const setExpandedAccordionKeysForCategory = (category: string, keys: string[]) => {
+        setExpandedAccordionKeys(prev => {
+            const next = {
+                ...prev,
+                [category]: keys
+            };
+            Cookies.set('dirty_expanded_keys', JSON.stringify(next), { expires: 1/144 }); // 10 minutos
             return next;
         });
     };
@@ -413,7 +442,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
             fetchActions,
             syncUserWithBackend,
             avatarCache,
-            getAvatarData
+            getAvatarData,
+            expandedAccordionKeys,
+            setExpandedAccordionKeysForCategory,
+            hasUnreadMessages,
+            setHasUnreadMessages
         }}>
             {children}
         </GameContext.Provider>

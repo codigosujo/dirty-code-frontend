@@ -80,7 +80,6 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
     const [isCheckingName, setIsCheckingName] = useState(false);
     const [nameAvailable, setNameAvailable] = useState(true);
 
-    // Set initial data
     useEffect(() => {
         if (user && !user.activeAvatar) {
             if (user.name) {
@@ -88,7 +87,6 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                 checkNameAvailability(user.name);
             }
 
-            // Fetch default story from histories.json
             const loadStory = async () => {
                 try {
                     const response = await fetch('/avatars/histories.json');
@@ -315,13 +313,13 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
 
                     <div className="space-y-4 flex flex-col justify-center">
                         <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">Escolha seu Visual</label>
-                        <div className="grid grid-cols-4 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="grid grid-cols-4 gap-2">
                             {AVATAR_OPTIONS.map((avatar) => (
                                 <button
                                     key={avatar.src}
                                     onClick={() => setSelectedAvatar(avatar.src)}
-                                    className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all group ${selectedAvatar === avatar.src
-                                        ? 'border-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] scale-95'
+                                    className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-300 group ${selectedAvatar === avatar.src
+                                        ? 'border-primary ring-2 ring-primary/50 ring-offset-1 ring-offset-black scale-105 z-10'
                                         : 'border-white/5 opacity-40 hover:opacity-100 hover:border-white/20'
                                         }`}
                                 >
@@ -329,17 +327,8 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                                         src={avatar.src}
                                         alt={avatar.alt}
                                         fill
-                                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                        className={`object-cover transition-transform duration-500 ${selectedAvatar === avatar.src ? 'scale-110' : 'group-hover:scale-110'}`}
                                     />
-                                    {selectedAvatar === avatar.src && (
-                                        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                                            <div className="bg-primary text-white p-1 rounded-full shadow-lg">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    )}
                                 </button>
                             ))}
                         </div>
@@ -393,7 +382,12 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
             isDismissable={false}
             backdrop="blur"
             size="5xl"
-            className="dark text-foreground bg-zinc-950/90 border border-white/10"
+            radius="lg"
+            classNames={{
+                base: "dark text-foreground bg-zinc-950/90 border border-white/10 shadow-2xl",
+                wrapper: "z-[9999]",
+                backdrop: "bg-black/80 backdrop-blur-md",
+            }}
             scrollBehavior="inside"
         >
             <ModalContent>
@@ -410,7 +404,7 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                             </div>
                             <h1 className="text-2xl font-black uppercase tracking-widest text-white">{steps[currentStep].title}</h1>
                         </ModalHeader>
-                        <ModalBody className="p-0 relative min-h-[620px] max-h-[620px] h-[620px] overflow-hidden">
+                        <ModalBody className="p-0 relative min-h-[620px] max-h-[620px] h-[620px] overflow-hidden bg-transparent">
                             {isLoading && (
                                 <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
                                     <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]" />
@@ -432,7 +426,7 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                                 </motion.div>
                             </AnimatePresence>
                         </ModalBody>
-                        <ModalFooter className="border-t border-white/10 py-6 px-8 bg-zinc-900/50">
+                        <ModalFooter className="border-t border-white/10 py-6 px-8 bg-transparent">
                             <Button
                                 variant="bordered"
                                 onPress={prevStep}
