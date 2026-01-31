@@ -106,6 +106,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [chatToken, setChatToken] = useState<string | null>(null);
     const [cachedActions, setCachedActions] = useState<Record<GameActionType, GameAction[]>>({} as any);
+    const fetchingActionsRef = React.useRef<Record<string, boolean>>({});
     const [avatarCache, setAvatarCache] = useState<Record<string, any>>({});
     const router = useRouter();
 
@@ -135,8 +136,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return await fetchAndCache();
     };
 
-    const fetchActions = async (type: GameActionType, silent: boolean = false) => {
+    const fetchActions = async (type: GameActionType, silent: boolean = false, force: boolean = false) => {
         if (!user?.activeAvatar) return;
+        
+        // Se já temos as ações e não é um reload forçado, não busca novamente
+        if (!force && cachedActions[type] && cachedActions[type].length > 0) {
+            return;
+        }
+
+        // Impede múltiplas chamadas simultâneas para o mesmo tipo de ação usando Ref (sincrono)
+        if (fetchingActionsRef.current[type]) return;
+
+        fetchingActionsRef.current[type] = true;
 
         if (!silent) setIsLoading(true);
         try {
@@ -145,21 +156,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 ...prev,
                 [type]: data
             }));
-            await syncUserWithBackend();
         } catch (error) {
             console.error(`Erro ao buscar ações do tipo ${type}:`, error);
         } finally {
             if (!silent) setIsLoading(false);
+            fetchingActionsRef.current[type] = false;
         }
     };
 
-    const updateAllActions = async () => {
+    const updateAllActions = async (force: boolean = true) => {
         if (!user?.activeAvatar) return;
         
-        const activeTypes = Object.keys(cachedActions) as GameActionType[];
-        for (const type of activeTypes) {
-            await fetchActions(type, true);
-        }
+        const typesToFetch = [
+            GameActionType.HACKING,
+            GameActionType.WORK,
+            GameActionType.TRAINING,
+            GameActionType.MARKET,
+            GameActionType.STORE,
+            GameActionType.HOSPITAL,
+            GameActionType.JAIL
+        ];
+
+        await Promise.all(typesToFetch.map(type => fetchActions(type, true, force)));
     };
 
     useEffect(() => {
@@ -195,14 +213,27 @@ export function GameProvider({ children }: { children: ReactNode }) {
         };
     }, [user?.activeAvatar?.id]);
 
+    const [isSyncing, setIsSyncing] = useState(false);
+    const syncUserRef = React.useRef(false);
     const syncUserWithBackend = async () => {
+        if (syncUserRef.current) return;
+        syncUserRef.current = true;
+        setIsSyncing(true);
         try {
             const response = await fetch('/api/user/me');
             if (response.ok) {
                 const serverUser = await response.json();
+                
+                // Se o avatar mudou ou acabou de ser carregado, buscamos todas as ações
+                const shouldFetchActions = !user?.activeAvatar || (serverUser.activeAvatar && serverUser.activeAvatar.id !== user.activeAvatar.id);
+                
                 setUser(serverUser);
                 if (typeof window !== 'undefined') {
                     setWithExpiry('dirty_user_info', serverUser);
+                }
+
+                if (shouldFetchActions && serverUser.activeAvatar) {
+                    updateAllActions(false); // Busca sem forçar se já tiver em cache (carregamento inicial)
                 }
             } else if (response.status === 401 || response.status === 403 || response.status === 500) {
                 if (window.location.pathname !== '/') {
@@ -211,20 +242,33 @@ export function GameProvider({ children }: { children: ReactNode }) {
             }
         } catch (error) {
             console.error('Failed to sync user with backend:', error);
+        } finally {
+            setIsSyncing(false);
+            syncUserRef.current = false;
         }
     };
 
+    const fetchUserRef = React.useRef(false);
     useEffect(() => {
         const fetchUser = async () => {
-            if (user) return;
+            if (user || fetchUserRef.current) return;
 
+            fetchUserRef.current = true;
             try {
                 const res = await fetch('/api/user/me');
                 if (res.ok) {
                     const userData = await res.json();
+                
+                    // Busca inicial de ações
+                    const shouldFetchActions = userData.activeAvatar;
+
                     setUser(userData);
                     if (typeof window !== 'undefined') {
                         setWithExpiry('dirty_user_info', userData);
+                    }
+
+                    if (shouldFetchActions) {
+                        updateAllActions(false);
                     }
                 } else if (res.status === 401 || res.status === 403) {
                     if (window.location.pathname !== '/') {
@@ -234,6 +278,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 }
             } catch (error) {
                 console.error("Failed to fetch user context", error);
+            } finally {
+                fetchUserRef.current = false;
             }
         };
 
@@ -245,15 +291,26 @@ export function GameProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (!user?.activeAvatar) return;
 
-        const POLL_INTERVAL = 30000;
+        const POLL_INTERVAL = 60000; // Aumentado para 60 segundos para reduzir chamadas
 
         const pollTimer = setInterval(async () => {
             try {
+                // Se a aba não estiver visível, pula o polling para economizar recursos
+                if (document.hidden) return;
+
                 const response = await fetch('/api/user/me');
                 if (response.ok) {
                     const serverUser = await response.json();
+                    
+                    // Se o avatar mudou durante o polling (raro, mas possível), atualiza ações
+                    const avatarChanged = user?.activeAvatar && serverUser.activeAvatar && serverUser.activeAvatar.id !== user.activeAvatar.id;
+                    
                     setUser(serverUser);
                     setWithExpiry('dirty_user_info', serverUser);
+
+                    if (avatarChanged) {
+                        updateAllActions(false);
+                    }
                     } else if (response.status === 401 || response.status === 403 || response.status === 500) {
                     console.warn(`[GameContext] Session expired during poll (${response.status})`);
                     logout();
@@ -304,6 +361,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
 
 
+    const [descriptionCache, setDescriptionCache] = useState<Record<string, any>>({});
+
     const performAction = async (action: any, count: number = 1): Promise<{
         success: boolean;
         message: string;
@@ -344,9 +403,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
             if (action.textFile) {
                 try {
-                    const response = await fetch(`/actions/descriptions/${action.textFile}`);
-                    if (response.ok) {
-                        const messages = await response.json();
+                    let messages = descriptionCache[action.textFile];
+                    if (!messages) {
+                        const response = await fetch(`/actions/descriptions/${action.textFile}`);
+                        if (response.ok) {
+                            messages = await response.json();
+                            setDescriptionCache(prev => ({ ...prev, [action.textFile]: messages }));
+                        }
+                    }
+
+                    if (messages) {
                         const pool = result.success ? messages.success : messages.failure;
                         if (pool && pool.length > 0) {
                             finalMessage = pool[Math.floor(Math.random() * pool.length)];
@@ -374,9 +440,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 }
             }
 
-            await syncUserWithBackend();
-            updateAllActions();
-            router.refresh();
+            // Omitindo chamadas redundantes para reduzir tráfego:
+            // syncUserWithBackend() não é necessário pois já atualizamos o user acima com o retorno da API.
+            // updateAllActions() e router.refresh() removidos para evitar spam de chamadas.
+            
+            // Invocando o 'me' (syncUserWithBackend) para garantir que o avatar esteja sempre atualizado após qualquer ação, conforme solicitado.
+            syncUserWithBackend();
+
             return {
                 success: result.success,
                 message: finalMessage,

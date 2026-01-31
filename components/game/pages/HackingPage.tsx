@@ -8,7 +8,7 @@ import { useGame } from "@/context/GameContext";
 import { Accordion, AccordionItem, Spinner } from "@heroui/react";
 
 export function HackingPage() {
-    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, expandedAccordionKeys, setExpandedAccordionKeysForCategory } = useGame();
+    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, syncUserWithBackend, expandedAccordionKeys, setExpandedAccordionKeysForCategory } = useGame();
     const actions = cachedActions[GameActionType.HACKING] || [];
     const [isLoading, setIsLoading] = useState(actions.length === 0);
     const actionCount = actionCounts['hacking'] || 1;
@@ -88,15 +88,22 @@ export function HackingPage() {
             if (!user?.activeAvatar) return;
             
             const isInitialLoad = actions.length === 0;
-            if (isInitialLoad) setIsLoading(true);
-            
-            await fetchActions(GameActionType.HACKING, !isInitialLoad);
-            
-            if (isInitialLoad) setIsLoading(false);
+            if (isInitialLoad) {
+                setIsLoading(true);
+                await Promise.all([
+                    fetchActions(GameActionType.HACKING),
+                    syncUserWithBackend()
+                ]);
+                setIsLoading(false);
+            } else {
+                // Sincroniza o usuário (avatar) para garantir consistência ao trocar de aba,
+                // mas não busca as ações novamente se já estiverem em cache (o fetchActions cuida disso internamente)
+                await syncUserWithBackend();
+            }
         };
         
         loadActions();
-    }, [user?.activeAvatar?.strength, user?.activeAvatar?.intelligence, user?.activeAvatar?.charisma, user?.activeAvatar?.stealth]);
+    }, [user?.activeAvatar?.id]);
 
     return (
         <div>

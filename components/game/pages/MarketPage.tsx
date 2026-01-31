@@ -8,7 +8,7 @@ import { useGame } from "@/context/GameContext";
 import { Spinner } from "@heroui/react";
 
 export function MarketPage() {
-    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions } = useGame();
+    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, syncUserWithBackend } = useGame();
     const actions = cachedActions[GameActionType.MARKET] || [];
     const [isLoading, setIsLoading] = useState(actions.length === 0);
     const actionCount = actionCounts['market'] || 1;
@@ -19,15 +19,20 @@ export function MarketPage() {
             if (!user?.activeAvatar) return;
             
             const isInitialLoad = actions.length === 0;
-            if (isInitialLoad) setIsLoading(true);
-            
-            await fetchActions(GameActionType.MARKET, !isInitialLoad);
-            
-            if (isInitialLoad) setIsLoading(false);
+            if (isInitialLoad) {
+                setIsLoading(true);
+                await Promise.all([
+                    fetchActions(GameActionType.MARKET),
+                    syncUserWithBackend()
+                ]);
+                setIsLoading(false);
+            } else {
+                await syncUserWithBackend();
+            }
         };
         
         loadActions();
-    }, [user?.activeAvatar?.strength, user?.activeAvatar?.intelligence, user?.activeAvatar?.charisma, user?.activeAvatar?.stealth]);
+    }, [user?.activeAvatar?.id]);
 
     return (
         <div>

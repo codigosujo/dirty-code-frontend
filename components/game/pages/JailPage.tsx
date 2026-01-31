@@ -20,11 +20,16 @@ export function JailPage() {
     useEffect(() => {
         const loadActions = async () => {
             const isInitialLoad = actions.length === 0;
-            if (isInitialLoad) setIsLoading(true);
-
-            await fetchActions(GameActionType.JAIL, !isInitialLoad);
-
-            if (isInitialLoad) setIsLoading(false);
+            if (isInitialLoad) {
+                setIsLoading(true);
+                await Promise.all([
+                    fetchActions(GameActionType.JAIL),
+                    syncUserWithBackend()
+                ]);
+                setIsLoading(false);
+            } else {
+                await syncUserWithBackend();
+            }
         };
         loadActions();
     }, []);

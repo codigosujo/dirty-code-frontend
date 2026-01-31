@@ -114,7 +114,15 @@ export const api = {
         };
     },
 
+    _tokenCache: null as string | null,
+    _tokenExpiry: 0,
+
     getToken: async (): Promise<string | null> => {
+        const now = Date.now();
+        if (api._tokenCache && now < api._tokenExpiry) {
+            return api._tokenCache;
+        }
+
         try {
             const tokenRes = await fetch('/api/auth/token');
             if (tokenRes.status === 403) {
@@ -123,6 +131,10 @@ export const api = {
             }
             if (!tokenRes.ok) return null;
             const { token } = await tokenRes.json();
+            
+            api._tokenCache = token;
+            api._tokenExpiry = now + 50 * 1000; // Cache por 50 segundos (tokens costumam durar 60s)
+            
             return token;
         } catch (error) {
             console.error('Error fetching token:', error);

@@ -9,7 +9,7 @@ import { Accordion, AccordionItem, Spinner } from "@heroui/react";
 import { CountdownTimer } from "../CountdownTimer";
 
 export function TrainingPage() {
-    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, expandedAccordionKeys, setExpandedAccordionKeysForCategory } = useGame();
+    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, syncUserWithBackend, expandedAccordionKeys, setExpandedAccordionKeysForCategory } = useGame();
     const actions = cachedActions[GameActionType.TRAINING] || [];
     const [isLoading, setIsLoading] = useState(actions.length === 0);
     const actionCount = actionCounts['training'] || 1;
@@ -89,15 +89,20 @@ export function TrainingPage() {
             if (!user?.activeAvatar) return;
             
             const isInitialLoad = actions.length === 0;
-            if (isInitialLoad) setIsLoading(true);
-            
-            await fetchActions(GameActionType.TRAINING, !isInitialLoad);
-            
-            if (isInitialLoad) setIsLoading(false);
+            if (isInitialLoad) {
+                setIsLoading(true);
+                await Promise.all([
+                    fetchActions(GameActionType.TRAINING),
+                    syncUserWithBackend()
+                ]);
+                setIsLoading(false);
+            } else {
+                await syncUserWithBackend();
+            }
         };
         
         loadActions();
-    }, [user?.activeAvatar?.strength, user?.activeAvatar?.intelligence, user?.activeAvatar?.charisma, user?.activeAvatar?.stealth]);
+    }, [user?.activeAvatar?.id]);
 
     return (
         <div>

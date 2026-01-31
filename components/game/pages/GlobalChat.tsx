@@ -18,9 +18,13 @@ export function GlobalChat() {
     const [lastSentTime, setLastSentTime] = useState<number>(0);
     const [cooldown, setCooldown] = useState(0);
     const [messageCount, setMessageCount] = useState(0);
-    const { user, chatMessages: messages, chatToken: token } = useGame();
+    const { user, chatMessages: messages, chatToken: token, syncUserWithBackend } = useGame();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        syncUserWithBackend();
+    }, []);
 
     const onEmojiClick = (emojiData: any) => {
         setNewMessage(prev => prev + emojiData.emoji);

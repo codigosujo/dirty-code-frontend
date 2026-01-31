@@ -8,7 +8,7 @@ import { useGame } from "@/context/GameContext";
 import { Accordion, AccordionItem, Spinner } from "@heroui/react";
 
 export function WorkPage() {
-    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, expandedAccordionKeys, setExpandedAccordionKeysForCategory } = useGame();
+    const { user, actionCounts, setActionCountForCategory, cachedActions, fetchActions, syncUserWithBackend, expandedAccordionKeys, setExpandedAccordionKeysForCategory } = useGame();
     const actions = cachedActions[GameActionType.WORK] || [];
     const [isLoading, setIsLoading] = useState(actions.length === 0);
     const actionCount = actionCounts['work'] || 1;
@@ -88,15 +88,20 @@ export function WorkPage() {
             if (!user?.activeAvatar) return;
             
             const isInitialLoad = actions.length === 0;
-            if (isInitialLoad) setIsLoading(true);
-            
-            await fetchActions(GameActionType.WORK, !isInitialLoad);
-            
-            if (isInitialLoad) setIsLoading(false);
+            if (isInitialLoad) {
+                setIsLoading(true);
+                await Promise.all([
+                    fetchActions(GameActionType.WORK),
+                    syncUserWithBackend()
+                ]);
+                setIsLoading(false);
+            } else {
+                await syncUserWithBackend();
+            }
         };
         
         loadActions();
-    }, [user?.activeAvatar?.strength, user?.activeAvatar?.intelligence, user?.activeAvatar?.charisma, user?.activeAvatar?.stealth]);
+    }, [user?.activeAvatar?.id]);
 
     return (
         <div>
