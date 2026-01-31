@@ -7,6 +7,16 @@ export interface ChangelogItem {
 
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
+        version: "0.2.9",
+        title: "Conversão de imagens para WEBP e redução drastica de chamadas entre back e front.",
+        date: "31/01/2026",
+        items: [
+            "Bugfix: Redução drastica de chamadas entre back e front.",
+            "FrontEnd: Conversão de todas imagens para WEBP.",
+            "Dr. Hoo Lee Sheet: Redução do custo base das seringas."
+        ]
+    },
+    {
         version: "0.2.8",
         title: "Sistema de 'PROCURADO' e melhorias visuais.",
         date: "30/01/2026",
