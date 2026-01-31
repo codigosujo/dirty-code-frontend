@@ -1,6 +1,6 @@
 'use client'
 
-import {useGame} from "@/context/GameContext";
+import { useGame } from "@/context/GameContext";
 import { Card, CardBody, Chip, Tooltip } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { GameAction, GameActionType } from "@/services/api";
@@ -17,8 +17,8 @@ interface ActionCardProps {
 export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequirementsProp, isSmall }: ActionCardProps) {
     const { performAction, user } = useGame();
     const [isLoading, setIsLoading] = useState(false);
-    const [feedback, setFeedback] = useState<{ 
-        message: string; 
+    const [feedback, setFeedback] = useState<{
+        message: string;
         type: 'success' | 'failure' | 'stamina';
         count?: number;
         variations?: {
@@ -50,7 +50,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
 
         const staminaNeededPerAction = Math.abs(action.stamina);
         const currentStamina = user?.activeAvatar?.stamina ?? 0;
-        
+
         if (action.stamina < 0 && currentStamina < staminaNeededPerAction) {
             const message = await getNoEnergyMessage();
 
@@ -79,17 +79,17 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
         setIsLoading(true);
         try {
             const result = await performAction(action, actionCount);
-            
+
             let message = result.message;
-            setFeedback({ 
-                message, 
+            setFeedback({
+                message,
                 type: result.success ? 'success' : 'failure',
                 count: result.timesExecuted,
                 variations: result.variations
             });
         } catch (error: any) {
             let message = error.message || "Erro ao realizar ação. Tente novamente.";
-            
+
             if (isNoMoneyError(message)) {
                 message = await getNoMoneyMessage();
             }
@@ -105,7 +105,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
 
     const effectiveCount = (() => {
         if (!user?.activeAvatar) return actionCount;
-        
+
         let maxByStamina = Infinity;
         if (action.stamina < 0) {
             maxByStamina = Math.floor((user.activeAvatar.stamina ?? 0) / Math.abs(action.stamina));
@@ -190,11 +190,10 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className={`absolute inset-0 z-20 flex items-center justify-center p-4 text-center backdrop-blur-md ${
-                            feedback.type === 'success' ? 'bg-green-500/20 text-green-400' : 
-                            feedback.type === 'stamina' ? 'bg-yellow-500/20 text-yellow-400' : 
-                            'bg-red-500/20 text-red-400'
-                        }`}
+                        className={`absolute inset-0 z-20 flex items-center justify-center p-4 text-center backdrop-blur-md ${feedback.type === 'success' ? 'bg-green-500/20 text-green-400' :
+                            feedback.type === 'stamina' ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-red-500/20 text-red-400'
+                            }`}
                         onClick={(e) => {
                             e.stopPropagation();
                             setFeedback(null);
@@ -219,7 +218,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                                             </span>
                                         </div>
                                     )}
-                                    
+
                                     {feedback.variations.experience !== 0 && feedback.variations.experience !== undefined && (
                                         <div className={`flex items-center gap-1.5 ${feedback.variations.experience < 0 ? 'text-red-500' : 'text-green-500'}`}>
                                             <span className="w-2 h-2 rounded-full bg-purple-500"></span>
@@ -265,33 +264,33 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                 )}
             </AnimatePresence>
 
-            <CardBody className={`flex flex-row items-center justify-between ${isSmall ? 'p-3.5 gap-4' : 'p-6 gap-6'}`}>
+            <CardBody className={`flex flex-col md:flex-row md:flex-nowrap items-center justify-between ${isSmall ? 'p-2 gap-2' : 'p-6 gap-6'}`}>
                 {action.actionImage && (
-                    <div className={`flex-shrink-0 ${isSmall ? 'w-20 h-20' : 'w-32 h-32'} rounded-lg overflow-hidden border border-white/5`}>
+                    <div className={`w-full h-auto max-h-[120px] md:w-32 md:h-32 flex-shrink-0 rounded-lg overflow-hidden border border-white/5 order-first md:order-none flex justify-center bg-black/40`}>
                         <img
                             src={`/actions/images/${action.actionImage}`}
                             alt={action.title}
-                            className="w-full h-full object-cover"
+                            className="h-auto w-auto max-h-[120px] max-w-full object-contain md:object-cover md:h-full md:w-full"
                         />
                     </div>
                 )}
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 w-full md:w-auto space-y-2 min-w-[200px]">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                            <h3 className={`font-bold ${isSmall ? 'text-sm' : 'text-xl'} text-white group-hover:text-primary transition-colors`}>
+                            <h3 className={`font-bold ${isSmall ? 'text-base' : 'text-xl'} text-white group-hover:text-primary transition-colors`}>
                                 {action.title}
                             </h3>
                             {isLoading && (
-                                <span className="flex h-2 w-2">
+                                <span className="flex h-2 w-2 relative">
                                     <span className={`animate-ping absolute inline-flex h-2 w-2 rounded-full bg-primary opacity-75`}></span>
                                     <span className={`relative inline-flex rounded-full h-2 w-2 bg-primary`}></span>
                                 </span>
                             )}
                         </div>
-                        <p className={`${isSmall ? 'text-[11px]' : 'text-sm'} text-gray-400 leading-relaxed`}>{action.description}</p>
+                        <p className={`${isSmall ? 'text-[10px]' : 'text-sm'} text-gray-400 leading-relaxed`}>{action.description}</p>
                     </div>
 
-                    <div className={`flex flex-wrap items-center ${isSmall ? 'gap-x-4 gap-y-1.5 text-[11px]' : 'gap-x-6 gap-y-2 text-xs'} font-mono text-gray-500`}>
+                    <div className={`flex flex-wrap items-center ${isSmall ? 'gap-x-3 gap-y-1 text-[10px]' : 'gap-x-6 gap-y-2 text-xs'} font-mono text-gray-500`}>
                         {stamina !== 0 && (
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
@@ -303,7 +302,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                         {xpReward !== undefined && xpReward !== 0 && (
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                                <span>{formatValue(xpReward, hasXpVariation)} Respeito</span>
+                                <span className="whitespace-nowrap">{formatValue(xpReward, hasXpVariation)} Respeito</span>
                             </div>
                         )}
                         {action.specialAction === 'VOLUNTARY_WORK' && (
@@ -315,7 +314,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                         {hpReward !== 0 && (
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                <span className={hpReward < 0 && (user?.activeAvatar?.life ?? 0) < Math.abs(hpReward) ? 'text-red-500 font-bold' : ''}>
+                                <span className={`${hpReward < 0 && (user?.activeAvatar?.life ?? 0) < Math.abs(hpReward) ? 'text-red-500 font-bold' : ''} whitespace-nowrap`}>
                                     {formatValue(hpReward, hasHpVariation)} HP
                                 </span>
                             </div>
@@ -343,7 +342,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                         {!hideRequirements && action.lostHpFailure !== undefined && action.lostHpFailure !== 0 && (
                             <div className="flex items-center gap-1.5 text-red-400/80">
                                 <span className="w-2 h-2 rounded-full bg-red-600"></span>
-                                <span>
+                                <span className="whitespace-nowrap">
                                     {hasLostHpFailureVariation ? '≈' : ''}-{riskPercentage > 50 ? action.lostHpFailure * 3 : action.lostHpFailure} HP (falha)
                                 </span>
                             </div>
@@ -351,7 +350,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                         {!hideRequirements && action.canBeArrested && (
                             <div className="flex items-center gap-1.5 text-orange-400/80">
                                 <span className="w-2 h-2 rounded-full bg-orange-600"></span>
-                                <span>
+                                <span className="whitespace-nowrap">
                                     {riskPercentage > 50 ? '15' : '5'}m Cadeia (falha)
                                 </span>
                             </div>
@@ -359,7 +358,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                     </div>
 
                     {!hideRequirements && requirements.length > 0 && (
-                        <div className="flex flex-row gap-2">
+                        <div className="flex flex-row gap-2 pt-1">
                             {requirements.map((req, idx) => (
                                 <Tooltip
                                     key={idx}
@@ -369,7 +368,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                                     placement="bottom"
                                 >
                                     <div
-                                        className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold shadow-sm ring-1 ${req.bg} ${req.color} ${req.ring}`}
+                                        className={`w-8 h-8 rounded flex items-center justify-center text-[10px] font-bold shadow-sm ring-1 ${req.bg} ${req.color} ${req.ring}`}
                                     >
                                         {req.value}
                                     </div>
@@ -379,7 +378,7 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                     )}
                 </div>
 
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-row md:flex-col items-center justify-between md:justify-center w-full md:w-auto gap-2 pt-2 md:pt-0 border-t border-white/5 md:border-t-0 mt-2 md:mt-0">
                     {!hideRequirements && (
                         <>
                             <Tooltip
@@ -391,20 +390,20 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
                                     size="sm"
                                     variant="flat"
                                     color={riskPercentage <= 10 ? "success" : riskPercentage <= 25 ? "warning" : "danger"}
-                                    className={`font-bold font-mono ${riskPercentage > 50 ? "animate-pulse border border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" : ""}`}
+                                    className={`font-bold font-mono h-5 min-h-5 text-[10px] ${riskPercentage > 50 ? "animate-pulse border border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" : ""}`}
                                 >
                                     RISCO: {riskPercentage}%
                                 </Chip>
                             </Tooltip>
                             {riskPercentage > 50 && (
-                                <div className="text-[10px] text-red-500 font-bold uppercase tracking-tighter animate-bounce">
+                                <div className="text-[10px] text-red-500 font-bold uppercase tracking-tighter animate-bounce hidden md:block">
                                     Punição 3x
                                 </div>
                             )}
                         </>
                     )}
                     {moneyReward !== undefined && moneyReward !== 0 && (
-                        <div className={`${isSmall ? 'text-xl' : 'text-2xl'} font-bold ${moneyReward > 0 ? 'text-green-500' : (user?.activeAvatar?.money ?? 0) < Math.abs(moneyReward) ? 'text-red-600' : 'text-red-500'}`}>
+                        <div className={`${isSmall ? 'text-sm' : 'text-base md:text-2xl'} font-bold ${moneyReward > 0 ? 'text-green-500' : (user?.activeAvatar?.money ?? 0) < Math.abs(moneyReward) ? 'text-red-600' : 'text-red-500'}`}>
                             R$ {formatMoneyValue(moneyReward, hasMoneyVariation)}
                         </div>
                     )}

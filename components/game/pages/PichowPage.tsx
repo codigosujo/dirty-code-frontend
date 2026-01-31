@@ -17,7 +17,7 @@ export function PichowPage() {
     useEffect(() => {
         const loadActions = async () => {
             if (!user?.activeAvatar) return;
-            
+
             const isInitialLoad = actions.length === 0;
             if (isInitialLoad) {
                 setIsLoading(true);
@@ -30,7 +30,7 @@ export function PichowPage() {
                 await syncUserWithBackend();
             }
         };
-        
+
         loadActions();
     }, [user?.activeAvatar?.id]);
 
@@ -40,7 +40,7 @@ export function PichowPage() {
                 <div>
                     <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Pichow</h1>
                     <p className="text-gray-400 text-sm md:text-lg border-l-2 border-primary pl-4">
-                        A grife oficial de quem não toma banho há 3 dias e acha que é o próximo Zuckerberg. 
+                        A grife oficial de quem não toma banho há 3 dias e acha que é o próximo Zuckerberg.
                         Preços tão inflados quanto o ego de um dev sênior que acabou de aprender Rust.
                     </p>
                 </div>

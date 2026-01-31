@@ -100,9 +100,8 @@ export function UserProfileCard() {
                             {availablePoints > 0 ? "Pontos Disponíveis" : "Dinheiro"}
                         </div>
                         <div
-                            className={`font-mono font-bold text-base md:text-xl break-all text-center ${
-                                availablePoints > 0 ? "text-primary animate-pulse" : "text-green-400"
-                            }`}
+                            className={`font-mono font-bold text-base md:text-xl break-all text-center ${availablePoints > 0 ? "text-primary animate-pulse" : "text-green-400"
+                                }`}
                         >
                             {availablePoints > 0 ? availablePoints : `R$ ${formatMoney(user?.activeAvatar?.money ?? 0)}`}
                         </div>
@@ -114,7 +113,7 @@ export function UserProfileCard() {
 
 
                 {/* Attributes Section (Mobile: Middle Row - Full Width) */}
-                <div className="col-span-2 md:col-span-1 md:w-auto flex flex-row md:flex-col gap-3 md:gap-2.5 md:border-l border-white/10 md:pl-4 justify-center md:order-last py-1.5 md:py-0 border-y border-white/10 md:border-y-0 bg-white/5 md:bg-transparent rounded-lg md:rounded-none">
+                <div className="col-span-2 md:col-span-1 md:w-auto flex flex-row md:flex-col gap-3 md:gap-2.5 md:border-l border-white/10 md:pl-4 justify-around md:justify-center md:order-last py-1.5 md:py-0 border-y border-white/10 md:border-y-0 bg-white/5 md:bg-transparent rounded-lg md:rounded-none">
                     {attributes.map((attr) => (
                         <div key={attr.short} className="flex items-center gap-1.5">
                             <Tooltip

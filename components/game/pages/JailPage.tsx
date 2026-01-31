@@ -195,7 +195,7 @@ export function JailPage() {
                                             className={`w-full font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 ${canAffordFreedom
                                                 ? 'bg-yellow-600 hover:bg-yellow-700'
                                                 : 'bg-gray-600 cursor-not-allowed'
-                                            } disabled:bg-gray-600 disabled:cursor-not-allowed text-white`}
+                                                } disabled:bg-gray-600 disabled:cursor-not-allowed text-white`}
                                         >
                                             {isProcessing ? (
                                                 <>

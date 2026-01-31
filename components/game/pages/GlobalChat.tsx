@@ -81,7 +81,7 @@ export function GlobalChat() {
             await chatService.sendMessage(messageWithEmojis, token);
             setNewMessage("");
             setLastSentTime(Date.now());
-            
+
             const nextCount = messageCount + 1;
             if (nextCount >= 3) {
                 setCooldown(15);
@@ -99,7 +99,7 @@ export function GlobalChat() {
     return (
         <div className="flex flex-col h-[500px] md:h-[600px]">
             <div className="mb-6">
-                <h1 className="text-4xl font-bold uppercase text-white mb-2">Helldit</h1>
+                <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Helldit</h1>
                 <p className="text-gray-400 text-lg border-l-2 border-primary pl-4">
                     O submundo da comunicação. Cuidado com o que você digita.
                 </p>
@@ -114,7 +114,7 @@ export function GlobalChat() {
                     )}
                     {messages.map((msg, idx) => {
                         const showDateDivider = idx === 0 || messages[idx - 1].fullDate !== msg.fullDate;
-                        
+
                         const formatDate = (dateStr?: string) => {
                             if (!dateStr) return "Arquivo Corrompido";
                             const [year, month, day] = dateStr.split('-');
@@ -125,7 +125,7 @@ export function GlobalChat() {
 
                             if (date.toDateString() === today.toDateString()) return "Hoje";
                             if (date.toDateString() === yesterday.toDateString()) return "Ontem";
-                            
+
                             return date.toLocaleDateString('pt-BR');
                         };
 
@@ -174,9 +174,9 @@ export function GlobalChat() {
                 <form onSubmit={handleSendMessage} className="p-4 border-t border-white/5 flex gap-2 items-center">
                     <Popover isOpen={isOpen} onOpenChange={(open) => setIsOpen(open)} placement="top-start">
                         <PopoverTrigger>
-                            <Button 
-                                isIconOnly 
-                                variant="light" 
+                            <Button
+                                isIconOnly
+                                variant="light"
                                 className="text-xl"
                                 isDisabled={isSending || cooldown > 0}
                             >
@@ -184,8 +184,8 @@ export function GlobalChat() {
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="p-0 border-none">
-                            <EmojiPicker 
-                                theme={Theme.DARK} 
+                            <EmojiPicker
+                                theme={Theme.DARK}
                                 onEmojiClick={onEmojiClick}
                                 lazyLoadEmojis={true}
                             />
@@ -205,9 +205,9 @@ export function GlobalChat() {
                         isDisabled={isSending || cooldown > 0}
                         autoComplete="off"
                     />
-                    <Button 
-                        color="primary" 
-                        type="submit" 
+                    <Button
+                        color="primary"
+                        type="submit"
                         isLoading={isSending}
                         isDisabled={cooldown > 0}
                         className="font-bold uppercase"

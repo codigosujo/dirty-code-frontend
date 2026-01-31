@@ -186,17 +186,17 @@ export default function GameDashboard() {
 
     return (
         <div className="flex flex-col gap-2 min-h-screen pb-10">
-            <OnboardingModal 
-                isOpen={showOnboarding} 
+            <OnboardingModal
+                isOpen={showOnboarding}
                 onComplete={() => {
                     setShowOnboarding(false);
                     syncUserWithBackend();
-                }} 
+                }}
             />
             <div className="container mx-auto lg:px-8 space-y-2 md:space-y-3">
-                <div className="sticky top-16 z-30 pt-1 md:pt-2 pb-0 bg-black/80 backdrop-blur-md -mx-2 px-2 md:mx-0 md:px-0 flex flex-col gap-2 md:gap-3">
+                <div className="sticky top-0 md:top-16 z-30 pt-1 md:pt-2 pb-0 bg-black/80 backdrop-blur-md -mx-2 px-2 md:mx-0 md:px-0 flex flex-col gap-2 md:gap-3">
                     <UserProfileCard />
-                    
+
                     <GameMenu
                         items={MENU_ITEMS}
                         activeId={activeTab}
@@ -205,7 +205,7 @@ export default function GameDashboard() {
                             ? MENU_ITEMS
                                 .filter(item => {
                                     if (item.id === 'Helldit') return false;
-                                    
+
                                     if (timeoutType === 'HOSPITAL') {
                                         return item.id !== 'hospital';
                                     } else if (timeoutType === 'JAIL') {

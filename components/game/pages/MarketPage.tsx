@@ -17,7 +17,7 @@ export function MarketPage() {
     useEffect(() => {
         const loadActions = async () => {
             if (!user?.activeAvatar) return;
-            
+
             const isInitialLoad = actions.length === 0;
             if (isInitialLoad) {
                 setIsLoading(true);
@@ -30,7 +30,7 @@ export function MarketPage() {
                 await syncUserWithBackend();
             }
         };
-        
+
         loadActions();
     }, [user?.activeAvatar?.id]);
 

@@ -102,7 +102,7 @@ export function HospitalPage() {
         } catch (error: any) {
             console.error('Erro ao comprar liberdade:', error);
             let message = error.message || 'Erro ao comprar liberdade';
-            
+
             if (isNoMoneyError(message)) {
                 message = await getNoMoneyMessage();
             }

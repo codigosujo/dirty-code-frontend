@@ -23,7 +23,7 @@ export function WorkPage() {
             if (!groups[level]) groups[level] = [];
             groups[level].push(action);
         });
-        
+
         return Object.keys(groups)
             .map(Number)
             .sort((a, b) => a - b)
@@ -39,7 +39,7 @@ export function WorkPage() {
 
     const defaultExpandedKey = useMemo(() => {
         if (groupedActions.length === 0) return undefined;
-        
+
         const exactMatch = groupedActions.find(g => userLevel <= g.level && userLevel >= g.level - 10);
         if (exactMatch) return exactMatch.level.toString();
 
@@ -60,7 +60,7 @@ export function WorkPage() {
                 const level = parseInt(key);
                 return level === 0 || userLevel >= level - 10;
             });
-        
+
             if (JSON.stringify(filtered) !== JSON.stringify(expandedKeys)) {
                 setExpandedKeys(filtered);
             }
@@ -73,7 +73,7 @@ export function WorkPage() {
 
     const handleExpandedChange = (keys: any) => {
         const keysArray = Array.from(keys) as string[];
-        
+
         const allowedKeys = keysArray.filter(key => {
             const level = parseInt(key);
             return level === 0 || userLevel >= level - 10;
@@ -86,7 +86,7 @@ export function WorkPage() {
     useEffect(() => {
         const loadActions = async () => {
             if (!user?.activeAvatar) return;
-            
+
             const isInitialLoad = actions.length === 0;
             if (isInitialLoad) {
                 setIsLoading(true);
@@ -99,31 +99,33 @@ export function WorkPage() {
                 await syncUserWithBackend();
             }
         };
-        
+
         loadActions();
     }, [user?.activeAvatar?.id]);
 
     return (
         <div>
-            <div className="flex justify-between items-start md:items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-bold uppercase text-white mb-2">Trabalho</h1>
                     <p className="text-gray-400 text-sm md:text-lg border-l-2 border-primary pl-4">
                         Onde o filho chora e a mãe não vê. Escolha seu veneno.
                     </p>
                 </div>
-                <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
+                <div className="w-full md:w-auto flex justify-end">
+                    <ActionQuantitySelector value={actionCount} onChange={setActionCount} />
+                </div>
             </div>
-            
-            <div className="mt-4 md:mt-5">
+
+            <div className="mt-1 md:mt-5">
                 {isLoading ? (
                     <div className="flex justify-center items-center py-20">
                         <Spinner color="primary" label="Escravizando estagiários... digo, carregando jobs..." labelColor="primary" />
                     </div>
                 ) : groupedActions.length > 0 ? (
-                    <Accordion 
-                        variant="splitted" 
-                        selectionMode="multiple" 
+                    <Accordion
+                        variant="splitted"
+                        selectionMode="multiple"
                         selectedKeys={expandedKeys}
                         onSelectionChange={handleExpandedChange}
                     >
@@ -159,12 +161,13 @@ export function WorkPage() {
                                         </div>
                                     }
                                     classNames={{
-                                        base: `bg-zinc-900/50 border border-white/5 mb-2 ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`,
+                                        base: `bg-zinc-900/50 border border-white/5 mb-1 ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`,
                                         title: "text-sm",
-                                        content: "px-2 pb-4"
+                                        trigger: "py-2 px-2",
+                                        content: "px-0 pb-1 pt-0"
                                     }}
                                 >
-                                    <div className="grid grid-cols-1 gap-2 md:gap-3">
+                                    <div className="grid grid-cols-1 gap-1 md:gap-3">
                                         {group.actions.map(action => (
                                             <ActionCard key={action.id} action={action} actionCount={actionCount} />
                                         ))}
