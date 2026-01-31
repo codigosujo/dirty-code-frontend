@@ -184,6 +184,13 @@ export const api = {
             life?: number;
             stamina?: number;
             money?: number;
+            temporaryStrength?: number;
+            temporaryIntelligence?: number;
+            temporaryCharisma?: number;
+            temporaryStealth?: number;
+            actionId?: string;
+            nextMoney?: number;
+            nextFailureChance?: number;
         }
     }> => {
         const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8080/dirty-code';

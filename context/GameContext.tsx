@@ -25,6 +25,9 @@ interface GameContextType {
             temporaryIntelligence?: number;
             temporaryCharisma?: number;
             temporaryStealth?: number;
+            actionId?: string;
+            nextMoney?: number;
+            nextFailureChance?: number;
         } | null;
     }>;
     refreshUser: (updates: Partial<User>) => void;
@@ -388,6 +391,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         try {
             const result = await api.performAction(action.id, count);
             const updatedAvatar = result.avatar;
+            const variations = result.variations;
 
             setUser(prev => {
                 if (!prev) return null;
@@ -398,6 +402,40 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 setWithExpiry('dirty_user_info', updatedUser);
                 return updatedUser;
             });
+
+            // Se o backend retornar informações da ação atualizada nas variações, atualizamos o cache local
+            if (variations && variations.actionId && (variations.nextMoney !== undefined || variations.nextFailureChance !== undefined)) {
+                setCachedActions(prev => {
+                    const actionId = variations.actionId;
+                    
+                    // Procuramos em qual categoria a ação está
+                    let type: GameActionType | null = null;
+                    for (const t in prev) {
+                        if (prev[t as GameActionType].some(a => a.id === actionId)) {
+                            type = t as GameActionType;
+                            break;
+                        }
+                    }
+
+                    if (!type) return prev;
+
+                    const updatedList = prev[type].map(a => {
+                        if (a.id === actionId) {
+                            return {
+                                ...a,
+                                money: variations.nextMoney !== undefined ? variations.nextMoney : a.money,
+                                failureChance: variations.nextFailureChance !== undefined ? variations.nextFailureChance : a.failureChance
+                            };
+                        }
+                        return a;
+                    });
+
+                    return {
+                        ...prev,
+                        [type]: updatedList
+                    };
+                });
+            }
 
             let finalMessage = result.success ? "Ação concluída com sucesso!" : "A ação falhou!";
 
@@ -423,7 +461,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 }
             }
 
-            const variations = result.variations || (oldAvatar ? {
+            const calculatedVariations = result.variations || (oldAvatar ? {
                 experience: (updatedAvatar.experience ?? 0) - (oldAvatar.experience ?? 0),
                 life: (updatedAvatar.life ?? 0) - (oldAvatar.life ?? 0),
                 stamina: (updatedAvatar.stamina ?? 0) - (oldAvatar.stamina ?? 0),
@@ -451,7 +489,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 success: result.success,
                 message: finalMessage,
                 timesExecuted: result.timesExecuted,
-                variations
+                variations: calculatedVariations
             };
         } catch (e: any) {
             console.error(e);

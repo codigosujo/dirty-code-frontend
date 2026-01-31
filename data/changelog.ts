@@ -15,7 +15,9 @@ export const CHANGELOG_DATA: ChangelogItem[] = [
             "Bugfix: Ajustadas ações com presos variaveis para exibir os preços corretamente.",
             "FrontEnd: Conversão de todas imagens para WEBP.",
             "Dr. Hoo Lee Sheet: Ajustado bug que não calculava a chance de falha das seringas" +
-            "Dr. Hoo Lee Sheet: Redução do custo base das seringas para 100000."
+            "Dr. Hoo Lee Sheet: Redução do custo base das seringas para 100000.",
+            "Backend/FrontEnd: Simplificação do cálculo de preços dinâmicos, agora feito exclusivamente no backend.",
+            "Backend/FrontEnd: Otimização da execução de ações para retornar e atualizar o valor da ação em tempo real via 'variations', eliminando necessidade de recarregar a lista."
         ]
     },
     {
