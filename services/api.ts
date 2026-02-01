@@ -49,6 +49,15 @@ export enum GameActionType {
     SPECIAL_STATUS_SELLER = 'SPECIAL_STATUS_SELLER'
 }
 
+export enum SpecialActionType {
+    CLEAR_TEMPORARY_STATUS = 'CLEAR_TEMPORARY_STATUS',
+    ADD_STRENGTH = 'ADD_STRENGTH',
+    ADD_INTELLIGENCE = 'ADD_INTELLIGENCE',
+    ADD_CHARISMA = 'ADD_CHARISMA',
+    ADD_STEALTH = 'ADD_STEALTH',
+    VOLUNTARY_WORK = 'VOLUNTARY_WORK',
+}
+
 export interface GameAction {
     id: string;
     type: GameActionType;

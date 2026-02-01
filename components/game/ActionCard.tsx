@@ -3,7 +3,7 @@
 import { useGame } from "@/context/GameContext";
 import { Card, CardBody, Chip, Tooltip } from "@heroui/react";
 import { useEffect, useState } from "react";
-import { GameAction, GameActionType } from "@/services/api";
+import {GameAction, GameActionType, SpecialActionType} from "@/services/api";
 import { AnimatePresence, motion } from "framer-motion";
 import { formatMoney, getNoEnergyMessage, getNoMoneyMessage, isNoMoneyError } from "@/lib/game-utils";
 
@@ -15,7 +15,7 @@ interface ActionCardProps {
 }
 
 export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequirementsProp, isSmall }: ActionCardProps) {
-    const { performAction, user } = useGame();
+    const { performAction, user, refreshWorkAndHacking } = useGame();
     const [isLoading, setIsLoading] = useState(false);
     const [feedback, setFeedback] = useState<{
         message: string;
@@ -80,13 +80,22 @@ export function ActionCard({ action, actionCount = 1, hideRequirements: hideRequ
         try {
             const result = await performAction(action, actionCount);
 
-            let message = result.message;
+            const message = result.message;
             setFeedback({
                 message,
                 type: result.success ? 'success' : 'failure',
                 count: result.timesExecuted,
                 variations: result.variations
             });
+
+            // Refresh work and hacking tabs if:
+            const isDrStrangeAction = action.type === GameActionType.SPECIAL_STATUS_SELLER;
+            const isClearTemporaryStatus = action.specialAction === SpecialActionType.CLEAR_TEMPORARY_STATUS;
+            const isTrainingAction = action.type === GameActionType.TRAINING;
+
+            if (result.success && (isDrStrangeAction || isClearTemporaryStatus || isTrainingAction)) {
+                await refreshWorkAndHacking();
+            }
         } catch (error: any) {
             let message = error.message || "Erro ao realizar ação. Tente novamente.";
 

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { WantedStars } from "./WantedStars";
 
 export function UserProfileCard() {
-    const { user, syncUserWithBackend } = useGame();
+    const { user, syncUserWithBackend, refreshWorkAndHacking } = useGame();
     const [isUpdating, setIsUpdating] = useState(false);
 
     const availablePoints = user?.activeAvatar?.availablePoints ?? 0;
@@ -21,7 +21,10 @@ export function UserProfileCard() {
         try {
             await api.increaseAttribute(attr);
             // Sync with backend to get the fully updated avatar state including potential level ups or side effects
-            await syncUserWithBackend();
+            await Promise.all([
+                syncUserWithBackend(),
+                refreshWorkAndHacking()
+            ]);
         } catch (error) {
             console.error("Erro ao aumentar atributo:", error);
         } finally {

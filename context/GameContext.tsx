@@ -46,6 +46,7 @@ interface GameContextType {
     setExpandedAccordionKeysForCategory: (category: string, keys: string[]) => void;
     hasUnreadMessages: boolean;
     setHasUnreadMessages: (value: boolean) => void;
+    refreshWorkAndHacking: () => Promise<void>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -532,6 +533,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setTimeoutRedirectCallback(() => callback);
     }
 
+    const refreshWorkAndHacking = async () => {
+        console.log("Refreshing work and hacking actions");
+        await Promise.all([
+            fetchActions(GameActionType.WORK, true, true),
+            fetchActions(GameActionType.HACKING, true, true)
+        ]);
+    };
+
     return (
         <GameContext.Provider value={{
             user,
@@ -554,7 +563,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
             expandedAccordionKeys,
             setExpandedAccordionKeysForCategory,
             hasUnreadMessages,
-            setHasUnreadMessages
+            setHasUnreadMessages,
+            refreshWorkAndHacking
         }}>
             {children}
         </GameContext.Provider>
