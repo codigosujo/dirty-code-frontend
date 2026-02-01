@@ -7,7 +7,7 @@ export interface ChangelogItem {
 
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
-        version: "0.2.9",
+        version: "0.3.0",
         title: "Configuração inicial do PWA e adição de 8 novas atividades.",
         date: "31/01/2026",
         items: [
