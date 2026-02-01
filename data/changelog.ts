@@ -8,6 +8,16 @@ export interface ChangelogItem {
 export const CHANGELOG_DATA: ChangelogItem[] = [
     {
         version: "0.2.9",
+        title: "Configuração inicial do PWA e adição de 8 novas atividades.",
+        date: "31/01/2026",
+        items: [
+            "Working: 4 novas atividades para execução entre nivel 20 e 30~.",
+            "Hacking: 4 novas atividades para execução entre nivel 20 e 30~.",
+            "FrontEnd: Configuração inicial do PWA.",
+        ]
+    },
+    {
+        version: "0.2.9",
         title: "Conversão de imagens para WEBP e redução drastica de chamadas entre back e front.",
         date: "31/01/2026",
         items: [
